@@ -3,85 +3,285 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Big Brother · Clients Editor</title>
+  <title>BIG BROTHER — Customers Editor</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    :root{--ink:#17212b;--muted:#6b7785;--line:#dfe5ea;--bg:#f4f7f8;--card:#fff;--brand:#176b52;--brand2:#25a071;--danger:#b42318;--shadow:0 12px 30px rgba(28,45,55,.08)}
-    *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-    button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.side{background:#102d26;color:#fff;padding:28px 18px;position:sticky;top:0;height:100vh}.brand{padding:0 10px 28px}.brand strong{display:block;font-size:22px;letter-spacing:.05em}.brand span{font-size:12px;color:#b5d4cb}.nav{display:grid;gap:8px}.nav button{border:0;background:transparent;color:#cde0da;text-align:left;padding:13px 14px;border-radius:12px;cursor:pointer}.nav button.active,.nav button:hover{background:#1c4a3e;color:#fff}.main{padding:30px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}.top h1{margin:0 0 5px;font-size:28px}.sub{color:var(--muted)}.status{font-size:13px;padding:8px 12px;border-radius:999px;background:#e8f5ef;color:var(--brand)}
-    .panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:22px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-weight:650;font-size:13px}.field input,.field select,.field textarea,.search{width:100%;border:1px solid #ccd6dc;border-radius:10px;background:#fff;padding:11px 12px;outline:none}.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(37,160,113,.13)}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.primary{background:var(--brand);color:#fff}.secondary{background:#e9efed;color:#24443a}.danger{color:var(--danger)}
-    .toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 260px auto;gap:12px;margin-bottom:16px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f8fafb}tr:last-child td{border-bottom:0}tbody tr:hover{background:#f7fbf9}.link{border:0;background:none;color:var(--brand);font-weight:750;cursor:pointer;padding:0}.pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;background:#e7f5ee;color:#176b52}.pill.off{background:#f1f1f1;color:#69727b}.empty{text-align:center;color:var(--muted);padding:42px}.price-head{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:12px;margin-bottom:16px}.price-input{width:130px;border:1px solid #ccd6dc;border-radius:8px;padding:8px}.toast{position:fixed;right:22px;bottom:22px;background:#16251f;color:#fff;padding:13px 16px;border-radius:10px;box-shadow:var(--shadow);display:none;z-index:20}.toast.show{display:block}.toast.error{background:#8f1f18}.loading{opacity:.55;pointer-events:none}
-    @media(max-width:850px){.app{display:block}.side{position:static;height:auto;padding:16px}.brand{padding:0 6px 14px}.nav{grid-template-columns:repeat(3,1fr)}.nav button{text-align:center;padding:10px 6px;font-size:12px}.main{padding:18px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.toolbar,.price-head{grid-template-columns:1fr}.top{display:block}.status{display:inline-block;margin-top:10px}}
+    *{box-sizing:border-box}
+    :root{--nav:#123f70;--nav2:#0d3158;--blue:#1769cf;--blue2:#0d56ae;--bg:#eef3f8;--card:#fff;--line:#d8e2ee;--text:#163354;--muted:#6d7f92;--green:#168652;--greenbg:#e8f7ef;--red:#c73f4a;--redbg:#fff0f1;--amber:#9c6700;--amberbg:#fff6dc}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    .app{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}
+    .sidebar{background:linear-gradient(180deg,var(--nav),var(--nav2));color:#fff;padding:20px 15px;position:sticky;top:0;height:100vh}
+    .brand{font-size:22px;font-weight:900;letter-spacing:1.4px;line-height:1.15}.brand-sub{font-size:11px;opacity:.82;margin:5px 0 25px}
+    .nav-title{font-size:10px;font-weight:800;opacity:.6;margin:18px 8px 7px}
+    .nav-item{width:100%;border:0;background:transparent;color:#fff;padding:11px 12px;border-radius:9px;margin:4px 0;font-size:13px;font-weight:700;display:flex;gap:9px;align-items:center;text-align:left}
+    .nav-item.active,.nav-item:hover{background:rgba(255,255,255,.14);box-shadow:inset 3px 0 0 #63abff}
+    .side-note{position:absolute;left:15px;right:15px;bottom:18px;border-top:1px solid rgba(255,255,255,.14);padding-top:12px;text-align:center;font-size:10px;line-height:1.5;opacity:.75}
+    .main{min-width:0}.topbar{min-height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:10px 22px;gap:16px}
+    .title h1{margin:0;font-size:24px}.title p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+    .connection{padding:8px 11px;border-radius:999px;font-size:11px;font-weight:900;background:var(--amberbg);color:var(--amber)}.connection.ok{background:var(--greenbg);color:var(--green)}.connection.bad{background:var(--redbg);color:var(--red)}
+    .workspace{padding:16px 18px 35px}.page{display:none}.page.active{display:block}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;box-shadow:0 6px 18px rgba(18,63,112,.04)}.summary-card span{font-size:10px;color:var(--muted);font-weight:800}.summary-card strong{display:block;margin-top:5px;font-size:19px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 22px rgba(18,63,112,.05);overflow:hidden}.card+.card{margin-top:12px}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid #e8eef4}.card-title{font-size:15px;font-weight:900}.card-sub{font-size:10px;color:var(--muted);margin-top:3px}.card-body{padding:15px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.form-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.field.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:900;color:#48627d;margin:0 0 5px}.field small{display:block;font-size:9px;color:var(--muted);margin-top:4px;line-height:1.4}
+    .field input,.field select,.field textarea,.search{width:100%;border:1px solid #ccd8e5;border-radius:8px;background:#fff;padding:9px 10px;color:var(--text);outline:none}.field textarea{min-height:72px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus,.search:focus{border-color:#5d9ee8;box-shadow:0 0 0 3px rgba(23,105,207,.08)}.field input:disabled{background:#f1f4f7;color:#75879a}
+    .btn{border:0;border-radius:8px;padding:9px 12px;font-weight:900}.btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}.btn.green{background:linear-gradient(135deg,#1a995f,#117445);color:#fff}.btn.ghost{background:#f4f8fb;color:#345879;border:1px solid var(--line)}.btn.red{background:var(--redbg);color:var(--red);border:1px solid #f3b9bf}.btn:disabled{opacity:.55;cursor:not-allowed}
+    .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.info{padding:10px 11px;border-radius:9px;font-size:10px;line-height:1.45}.info.blue{background:#eef7ff;border:1px solid #cce3fb;color:#315f8f}.info.amber{background:var(--amberbg);border:1px solid #ecd48b;color:#725311}
+    .toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px 180px auto;gap:8px;padding:13px 15px;border-bottom:1px solid var(--line)}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:11px;min-width:850px}th{background:#f1f5f9;color:#405a76;text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:9px;border-bottom:1px solid #edf1f5;vertical-align:middle}tr:hover td{background:#fafcfe}.empty{padding:28px!important;text-align:center;color:var(--muted)}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900}.badge.green{background:var(--greenbg);color:var(--green)}.badge.red{background:var(--redbg);color:var(--red)}.badge.blue{background:#eaf3ff;color:var(--blue)}.row-btn{padding:6px 9px;border-radius:7px;border:1px solid #cbd9e7;background:#fff;color:var(--blue);font-weight:900}
+    .map-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px}.map{height:610px;border-radius:12px;border:1px solid var(--line);background:#dbe5ec}.map-list{max-height:610px;overflow:auto}.map-customer{padding:11px;border-bottom:1px solid var(--line)}.map-customer:last-child{border-bottom:0}.map-customer strong{display:block;font-size:12px}.map-customer small{display:block;color:var(--muted);margin:4px 0 7px}.map-actions{display:flex;gap:6px}
+    .detail-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.section{padding:15px;border-bottom:1px solid #e8eef4}.section:last-child{border-bottom:0}.section-title{font-size:13px;font-weight:900;margin:0 0 11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .price-table{min-width:760px}.price-table input{width:115px;padding:7px;border:1px solid #ccd8e5;border-radius:7px}.price-table tr.custom td{background:#fffaf0}.price-diff{font-size:9px;color:var(--amber);font-weight:900}.price-default{color:var(--muted)}.price-actions{display:flex;gap:6px;align-items:center}
+    .loading{position:fixed;inset:0;background:rgba(238,243,248,.72);z-index:900;display:flex;align-items:center;justify-content:center}.loader{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px 22px;font-weight:900;box-shadow:0 14px 40px rgba(10,40,70,.16)}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:1000;max-width:390px;padding:12px 15px;border-radius:9px;background:#173c32;color:#fff;font-size:12px;font-weight:800;box-shadow:0 12px 35px rgba(0,0,0,.2);display:none}.toast.show{display:block}.toast.error{background:#98343d}
+    @media(max-width:1050px){.app{grid-template-columns:76px minmax(0,1fr)}.brand{font-size:13px}.brand-sub,.nav-title,.nav-item span,.side-note{display:none}.nav-item{justify-content:center;font-size:19px}.form-grid.four{grid-template-columns:1fr 1fr}.map-layout{grid-template-columns:1fr}.map-list{max-height:320px}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search-main{grid-column:1/-1}}
+    @media(max-width:700px){.app{display:block}.sidebar{position:static;height:auto;display:flex;align-items:center;gap:6px;padding:9px}.brand{width:60px}.nav-title,.brand-sub,.side-note{display:none}.nav-item{width:auto;flex:1;margin:0;font-size:11px;justify-content:center}.nav-item span{display:inline}.topbar{padding:10px 12px}.title h1{font-size:19px}.workspace{padding:9px}.summary{grid-template-columns:1fr 1fr}.form-grid,.form-grid.four,.toolbar{grid-template-columns:1fr}.toolbar .search-main{grid-column:auto}.map{height:470px}.actions{flex-wrap:wrap}.actions .btn{flex:1}}
   </style>
 </head>
 <body>
+<div class="loading" id="loading"><div class="loader" id="loadingText">Connecting to Master Database…</div></div>
 <div class="app">
-  <aside class="side">
-    <div class="brand"><strong>BIG BROTHER</strong><span>MASTER DATABASE · CLIENTS</span></div>
-    <nav class="nav">
-      <button class="active" data-page="add">＋ Add Client</button>
-      <button data-page="prices">Products & Price</button>
-      <button data-page="clients">All Client Detail</button>
-    </nav>
+  <aside class="sidebar">
+    <div class="brand">BIG<br>BROTHER</div>
+    <div class="brand-sub">Customers Editor</div>
+    <div class="nav-title">CUSTOMERS</div>
+    <button class="nav-item active" data-page="add">＋ <span>Add Customer</span></button>
+    <button class="nav-item" data-page="map">📍 <span>Customer Map</span></button>
+    <button class="nav-item" data-page="details">👥 <span>All Customer Details</span></button>
+    <div class="side-note">Customer location and individual selling prices are managed from the BIG BROTHER Master Database.</div>
   </aside>
-  <main class="main" id="main">
-    <header class="top"><div><h1 id="pageTitle">Add Client</h1><div class="sub" id="pageSub">Create a new customer record in the Master Database.</div></div><span class="status" id="apiStatus">Connecting…</span></header>
-
-    <section class="panel active" id="page-add">
-      <form class="card" id="clientForm">
-        <input type="hidden" id="originalClientId">
-        <div class="grid">
-          <div class="field"><label for="clientId">Client ID / Code *</label><input id="clientId" required placeholder="e.g. C0001"></div>
-          <div class="field"><label for="clientName">Client Name *</label><input id="clientName" required placeholder="Customer or company name"></div>
-          <div class="field"><label for="phone">Phone</label><input id="phone" placeholder="Phone number"></div>
-          <div class="field"><label for="contactPerson">Contact Person</label><input id="contactPerson" placeholder="Main contact"></div>
-          <div class="field"><label for="paymentTerm">Payment Term</label><input id="paymentTerm" placeholder="e.g. 7 Days / COD"></div>
-          <div class="field"><label for="currency">Default Currency</label><select id="currency"><option>USD</option><option>KHR</option></select></div>
-          <div class="field"><label for="active">Status</label><select id="active"><option value="TRUE">Active</option><option value="FALSE">Inactive</option></select></div>
-          <div class="field full"><label for="address">Address</label><textarea id="address" rows="3" placeholder="Client address"></textarea></div>
-          <div class="field full"><label for="note">Note</label><textarea id="note" rows="3" placeholder="Internal note"></textarea></div>
+  <main class="main">
+    <header class="topbar">
+      <div class="title"><h1 id="pageTitle">Add Customer</h1><p id="pageSubtitle">Create a customer with delivery and map information.</p></div>
+      <div class="connection" id="connection">Connecting…</div>
+    </header>
+    <div class="workspace">
+      <section class="page active" id="page-add">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">＋ New Customer</div><div class="card-sub">A permanent Customer ID and default product-price row are created automatically.</div></div></div>
+          <div class="card-body">
+            <form id="addForm">
+              <div class="form-grid four">
+                <div class="field"><label>Customer ID</label><input value="Automatic" disabled><small>The database generates CUS-0001 format.</small></div>
+                <div class="field"><label>Customer Name *</label><input id="aName" required></div>
+                <div class="field"><label>Phone</label><input id="aPhone"></div>
+                <div class="field"><label>Location Code *</label><select id="aLocation" required></select></div>
+                <div class="field full"><label>Address</label><textarea id="aAddress"></textarea></div>
+                <div class="field"><label>Google Maps Link</label><input id="aMapLink" placeholder="Paste Google Maps link" oninput="extractAddCoordinates()"></div>
+                <div class="field"><label>Latitude</label><input id="aLatitude" type="number" min="-90" max="90" step="any" placeholder="11.556374"></div>
+                <div class="field"><label>Longitude</label><input id="aLongitude" type="number" min="-180" max="180" step="any" placeholder="104.928210"></div>
+                <div class="field"><label>Status</label><select id="aActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+                <div class="field full"><label>Delivery Location Note</label><textarea id="aDeliveryNote" placeholder="Example: Blue gate beside ABA"></textarea></div>
+              </div>
+              <div class="info blue" style="margin-top:12px">When saved, all active products are added to this customer using each product’s default Price USD. Individual prices can be changed later in All Customer Details.</div>
+              <div class="actions"><button type="button" class="btn ghost" onclick="resetAddForm()">Clear</button><button class="btn green" id="addSaveBtn">Save New Customer</button></div>
+            </form>
+          </div>
         </div>
-        <div class="actions"><button type="button" class="btn secondary" id="resetBtn">Clear</button><button class="btn primary" id="saveClientBtn">Save Client</button></div>
-      </form>
-    </section>
+      </section>
 
-    <section class="panel" id="page-prices">
-      <div class="card">
-        <div class="price-head"><select class="search" id="priceClient"><option value="">Select a client…</option></select><button class="btn primary" id="savePricesBtn">Save Product Prices</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Product Code</th><th>Product Name</th><th>Unit</th><th>Price</th><th>Currency</th><th>Active</th></tr></thead><tbody id="priceRows"><tr><td colspan="6" class="empty">Select a client to manage product prices.</td></tr></tbody></table></div>
-      </div>
-    </section>
+      <section class="page" id="page-map">
+        <div class="summary">
+          <div class="summary-card"><span>ALL CUSTOMERS</span><strong id="mapTotal">0</strong></div>
+          <div class="summary-card"><span>ON MAP</span><strong id="mapReady">0</strong></div>
+          <div class="summary-card"><span>MISSING LOCATION</span><strong id="mapMissing">0</strong></div>
+          <div class="summary-card"><span>ACTIVE</span><strong id="mapActive">0</strong></div>
+        </div>
+        <div class="map-layout">
+          <div id="customerMap" class="map"></div>
+          <div class="card map-list">
+            <div class="card-head"><div><div class="card-title">Delivery Customers</div><div class="card-sub">Search and start navigation.</div></div></div>
+            <div class="card-body"><input class="search" id="mapSearch" placeholder="Search customer…" oninput="renderMapList()"></div>
+            <div id="mapCustomerList"></div>
+          </div>
+        </div>
+      </section>
 
-    <section class="panel" id="page-clients">
-      <div class="card">
-        <div class="toolbar"><input class="search" id="clientSearch" placeholder="Search client name, code, phone…"><select class="search" id="statusFilter"><option value="">All statuses</option><option value="TRUE">Active</option><option value="FALSE">Inactive</option></select><button class="btn secondary" id="refreshBtn">Refresh</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Client ID</th><th>Client Name</th><th>Phone</th><th>Payment Term</th><th>Currency</th><th>Status</th><th></th></tr></thead><tbody id="clientRows"></tbody></table></div>
-      </div>
-    </section>
+      <section class="page" id="page-details">
+        <div class="summary">
+          <div class="summary-card"><span>TOTAL CUSTOMERS</span><strong id="totalCustomers">0</strong></div>
+          <div class="summary-card"><span>ACTIVE</span><strong id="activeCustomers">0</strong></div>
+          <div class="summary-card"><span>INACTIVE</span><strong id="inactiveCustomers">0</strong></div>
+          <div class="summary-card"><span>WITH MAP</span><strong id="mappedCustomers">0</strong></div>
+        </div>
+        <div class="card" id="customerListCard">
+          <div class="card-head"><div><div class="card-title">All Customer Details</div><div class="card-sub">Select Manage to edit information and product prices.</div></div><button class="btn ghost" onclick="loadApp()">Refresh</button></div>
+          <div class="toolbar">
+            <input class="search search-main" id="customerSearch" placeholder="Search name, ID, phone or address…" oninput="renderCustomerTable()">
+            <select class="search" id="customerLocationFilter" onchange="renderCustomerTable()"><option value="">All locations</option></select>
+            <select class="search" id="customerStatusFilter" onchange="renderCustomerTable()"><option value="">All statuses</option><option value="true">Active</option><option value="false">Inactive</option></select>
+            <button class="btn ghost" onclick="clearFilters()">Clear Filters</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Customer ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Location</th><th>Map</th><th>Status</th><th>Action</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+        </div>
+
+        <div class="card hidden" id="customerDetailCard">
+          <div class="card-head"><div><div class="card-title" id="detailTitle">Customer Detail</div><div class="card-sub">Edit customer information and individual product prices.</div></div><button class="btn ghost" onclick="closeCustomerDetail()">← Back to List</button></div>
+          <div class="section">
+            <div class="section-title">Customer Information <span class="badge blue" id="detailIdBadge"></span></div>
+            <div class="form-grid four">
+              <div class="field"><label>Customer ID</label><input id="dCustomerId" disabled></div>
+              <div class="field"><label>Customer Name *</label><input id="dName"></div>
+              <div class="field"><label>Phone</label><input id="dPhone"></div>
+              <div class="field"><label>Location Code *</label><select id="dLocation"></select></div>
+              <div class="field full"><label>Address</label><textarea id="dAddress"></textarea></div>
+              <div class="field"><label>Google Maps Link</label><input id="dMapLink" oninput="extractDetailCoordinates()"></div>
+              <div class="field"><label>Latitude</label><input id="dLatitude" type="number" min="-90" max="90" step="any"></div>
+              <div class="field"><label>Longitude</label><input id="dLongitude" type="number" min="-180" max="180" step="any"></div>
+              <div class="field"><label>Status</label><select id="dActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+              <div class="field full"><label>Delivery Location Note</label><textarea id="dDeliveryNote"></textarea></div>
+            </div>
+            <div class="actions"><button class="btn ghost" onclick="openSelectedMap()">Open Map</button><button class="btn green" id="detailSaveBtn" onclick="saveCustomerDetail()">Save Customer Information</button></div>
+          </div>
+          <div class="section">
+            <div class="section-title"><span>Customer Products & Prices</span><span class="badge blue" id="priceCount">0 Products</span></div>
+            <div class="info amber" style="margin-bottom:10px">Default Price comes from Products → Price USD. Changing a customer price affects only this customer. Reset restores the current default price.</div>
+            <div class="table-wrap"><table class="price-table"><thead><tr><th>Product Code</th><th>Product Name</th><th>Unit</th><th>Default Price USD</th><th>Customer Price USD</th><th>Price Type</th><th>Action</th></tr></thead><tbody id="priceTableBody"></tbody></table></div>
+            <div class="actions"><button class="btn ghost" onclick="resetAllPrices()">Reset All to Default</button><button class="btn primary" id="priceSaveBtn" onclick="savePrices()">Save Customer Prices</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 <div class="toast" id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const API_URL='https://script.google.com/macros/s/AKfycbyM5mUlz5SeMZ_oPJCo2FgLkPEcodAQ7wPl5wxAdrvfqLvsZLaHxiOtS02L1Q3ZRA3D/exec';
-const state={clients:[],products:[],prices:[]};
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const pages={add:['Add Client','Create a new customer record in the Master Database.'],prices:['All Clients Products & Price','Manage each client’s agreed product prices.'],clients:['All Client Detail','Search, review, and edit existing client records.']};
-function toast(message,error=false){const t=$('#toast');t.textContent=message;t.className='toast show'+(error?' error':'');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.className='toast',3500)}
-function busy(on){$('#main').classList.toggle('loading',on)}
-async function api(action,payload={}){const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...payload})});const data=await res.json();if(!data.ok)throw new Error(data.error||'Request failed');return data}
-function showPage(name){$$('.panel').forEach(x=>x.classList.remove('active'));$$('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===name));$('#page-'+name).classList.add('active');$('#pageTitle').textContent=pages[name][0];$('#pageSub').textContent=pages[name][1]}
-$$('.nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-function normalizeBool(v){return String(v).toUpperCase()==='TRUE'||v===true}
-function renderClients(){const q=$('#clientSearch').value.trim().toLowerCase(),f=$('#statusFilter').value;const rows=state.clients.filter(c=>(!q||[c.clientId,c.clientName,c.phone,c.contactPerson].join(' ').toLowerCase().includes(q))&&(!f||String(normalizeBool(c.active)).toUpperCase()===f));$('#clientRows').innerHTML=rows.length?rows.map(c=>`<tr><td>${esc(c.clientId)}</td><td><strong>${esc(c.clientName)}</strong></td><td>${esc(c.phone||'—')}</td><td>${esc(c.paymentTerm||'—')}</td><td>${esc(c.currency||'USD')}</td><td><span class="pill ${normalizeBool(c.active)?'':'off'}">${normalizeBool(c.active)?'Active':'Inactive'}</span></td><td><button class="link" data-edit="${esc(c.clientId)}">Edit</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No clients found.</td></tr>';$$('[data-edit]').forEach(b=>b.onclick=()=>editClient(b.dataset.edit))}
-function fillClientOptions(){const v=$('#priceClient').value;$('#priceClient').innerHTML='<option value="">Select a client…</option>'+state.clients.map(c=>`<option value="${esc(c.clientId)}">${esc(c.clientId)} — ${esc(c.clientName)}</option>`).join('');$('#priceClient').value=v}
-function editClient(id){const c=state.clients.find(x=>x.clientId===id);if(!c)return;['clientId','clientName','phone','contactPerson','paymentTerm','currency','active','address','note'].forEach(k=>$('#'+k).value=k==='active'?(normalizeBool(c[k])?'TRUE':'FALSE'):(c[k]??''));$('#originalClientId').value=c.clientId;$('#clientId').readOnly=true;$('#saveClientBtn').textContent='Update Client';showPage('add')}
-function resetForm(){$('#clientForm').reset();$('#originalClientId').value='';$('#clientId').readOnly=false;$('#saveClientBtn').textContent='Save Client'}
-function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-async function load(){busy(true);try{const d=await api('clientEditorBootstrap');state.clients=d.clients||[];state.products=d.products||[];renderClients();fillClientOptions();$('#apiStatus').textContent=`Connected · ${state.clients.length} clients`}catch(e){$('#apiStatus').textContent='Connection error';toast(e.message,true)}finally{busy(false)}}
-$('#clientSearch').oninput=renderClients;$('#statusFilter').onchange=renderClients;$('#refreshBtn').onclick=load;$('#resetBtn').onclick=resetForm;
-$('#clientForm').onsubmit=async e=>{e.preventDefault();const client={};['clientId','clientName','phone','contactPerson','paymentTerm','currency','active','address','note'].forEach(k=>client[k]=$('#'+k).value.trim());busy(true);try{await api('clientEditorSaveClient',{client,originalClientId:$('#originalClientId').value});toast($('#originalClientId').value?'Client updated.':'Client added.');resetForm();await load();showPage('clients')}catch(x){toast(x.message,true)}finally{busy(false)}};
-$('#priceClient').onchange=async()=>{const id=$('#priceClient').value;if(!id){$('#priceRows').innerHTML='<tr><td colspan="6" class="empty">Select a client to manage product prices.</td></tr>';return}busy(true);try{const d=await api('clientEditorPrices',{clientId:id});state.prices=d.prices||[];const map=Object.fromEntries(state.prices.map(p=>[p.productCode,p]));$('#priceRows').innerHTML=state.products.map(p=>{const x=map[p.productCode]||{};return `<tr data-product="${esc(p.productCode)}"><td>${esc(p.productCode)}</td><td><strong>${esc(p.productName)}</strong></td><td>${esc(p.unit||'')}</td><td><input class="price-input js-price" type="number" min="0" step="0.0001" value="${Number(x.price||x.purchasePrice||0)}"></td><td><select class="price-input js-currency"><option ${String(x.currency||'USD')==='USD'?'selected':''}>USD</option><option ${String(x.currency)==='KHR'?'selected':''}>KHR</option></select></td><td><input class="js-active" type="checkbox" ${x.active===undefined||normalizeBool(x.active)?'checked':''}></td></tr>`}).join('')}catch(e){toast(e.message,true)}finally{busy(false)}};
-$('#savePricesBtn').onclick=async()=>{const clientId=$('#priceClient').value;if(!clientId)return toast('Please select a client.',true);const prices=$$('#priceRows tr[data-product]').map(r=>({clientId,productCode:r.dataset.product,price:Number(r.querySelector('.js-price').value||0),currency:r.querySelector('.js-currency').value,active:r.querySelector('.js-active').checked}));busy(true);try{await api('clientEditorSavePrices',{clientId,prices});toast('Product prices saved.')}catch(e){toast(e.message,true)}finally{busy(false)}};
-load();
+const API_URL="https://script.google.com/macros/s/AKfycbzIjs-cNehMxWTZs3ZPAosseGUu1nqACTPo3S4-onLLEYnEgqP6AUK7p3jwb6MaFr7H0w/exec";
+const state={customers:[],locations:[],products:[],selected:null,prices:[],map:null,markers:[]};
+const $=id=>document.getElementById(id);
+const pageInfo={
+  add:["Add Customer","Create a customer with delivery and map information."],
+  map:["Customer Map","Find customers and open delivery navigation."],
+  details:["All Customer Details","Edit customer information and individual product prices."]
+};
+
+function esc(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]))}
+function bool(value){return value===true||String(value).toLowerCase()==="true"||String(value)==="1"}
+function num(value){const n=Number(value);return Number.isFinite(n)?n:0}
+function money(value){return "$"+num(value).toFixed(2)}
+function showLoading(show,text){$("loading").classList.toggle("hidden",!show);if(text)$("loadingText").textContent=text}
+function toast(message,error=false){const box=$("toast");box.textContent=message;box.className="toast show"+(error?" error":"");clearTimeout(toast.timer);toast.timer=setTimeout(()=>box.className="toast",4000)}
+async function apiGet(action,params={}){const url=new URL(API_URL);url.searchParams.set("action",action);Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));const response=await fetch(url.toString(),{redirect:"follow"});const data=await response.json();if(data&&data.success===false)throw new Error(data.error||"Database request failed.");return data}
+async function apiPost(action,payload={}){const response=await fetch(API_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,...payload})});const data=await response.json();if(data&&data.success===false)throw new Error(data.error||"Database request failed.");return data}
+
+document.querySelectorAll(".nav-item").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.page)));
+function openPage(name){
+  document.querySelectorAll(".nav-item").forEach(button=>button.classList.toggle("active",button.dataset.page===name));
+  document.querySelectorAll(".page").forEach(page=>page.classList.remove("active"));
+  $("page-"+name).classList.add("active");$("pageTitle").textContent=pageInfo[name][0];$("pageSubtitle").textContent=pageInfo[name][1];
+  if(name==="map")setTimeout(renderMap,80);
+}
+
+function locationOptions(selected=""){return '<option value="">Select location…</option>'+state.locations.map(item=>'<option value="'+esc(item.locationCode)+'" '+(item.locationCode===selected?"selected":"")+'>'+esc(item.locationCode+(item.locationName?" — "+item.locationName:""))+'</option>').join("")}
+function populateOptions(){
+  $("aLocation").innerHTML=locationOptions();
+  $("dLocation").innerHTML=locationOptions();
+  $("customerLocationFilter").innerHTML='<option value="">All locations</option>'+state.locations.map(item=>'<option value="'+esc(item.locationCode)+'">'+esc(item.locationCode+(item.locationName?" — "+item.locationName:""))+'</option>').join("");
+}
+function updateSummaries(){
+  const active=state.customers.filter(item=>bool(item.active)).length;
+  const mapped=state.customers.filter(hasCoordinates).length;
+  $("totalCustomers").textContent=state.customers.length;$("activeCustomers").textContent=active;$("inactiveCustomers").textContent=state.customers.length-active;$("mappedCustomers").textContent=mapped;
+  $("mapTotal").textContent=state.customers.length;$("mapReady").textContent=mapped;$("mapMissing").textContent=state.customers.length-mapped;$("mapActive").textContent=active;
+}
+async function loadApp(){
+  showLoading(true,"Preparing Customers Database…");
+  try{
+    const data=await apiGet("customerEditorBootstrap");
+    state.customers=Array.isArray(data.customers)?data.customers:[];
+    state.locations=Array.isArray(data.locations)?data.locations:[];
+    state.products=Array.isArray(data.products)?data.products:[];
+    populateOptions();updateSummaries();renderCustomerTable();renderMapList();
+    $("connection").textContent="Connected · "+(data.version||"Master Database");$("connection").className="connection ok";
+  }catch(error){
+    $("connection").textContent="Connection Error";$("connection").className="connection bad";toast(error.message,true);
+  }finally{showLoading(false)}
+}
+
+function addPayload(){
+  return{name:$("aName").value.trim(),phone:$("aPhone").value.trim(),address:$("aAddress").value.trim(),locationCode:$("aLocation").value,active:$("aActive").value,googleMapsLink:$("aMapLink").value.trim(),latitude:$("aLatitude").value.trim(),longitude:$("aLongitude").value.trim(),deliveryLocationNote:$("aDeliveryNote").value.trim()};
+}
+$("addForm").addEventListener("submit",async event=>{
+  event.preventDefault();const data=addPayload();if(!data.name||!data.locationCode)return toast("Customer Name and Location Code are required.",true);
+  const button=$("addSaveBtn");button.disabled=true;button.textContent="Saving…";showLoading(true,"Creating customer and default prices…");
+  try{const result=await apiPost("saveCustomer",data);toast("Customer "+result.customer.customerId+" created successfully.");resetAddForm();await loadApp();openPage("details")}
+  catch(error){toast(error.message,true)}
+  finally{button.disabled=false;button.textContent="Save New Customer";showLoading(false)}
+});
+function resetAddForm(){$("addForm").reset();$("aLocation").innerHTML=locationOptions();$("aActive").value="true"}
+function parseCoordinates(link){const text=String(link||"");const patterns=[/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,/[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?)(?:%2C|,)(-?\d+(?:\.\d+)?)/i,/(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/];for(const pattern of patterns){const match=text.match(pattern);if(match)return{lat:match[1],lng:match[2]}}return null}
+function extractAddCoordinates(){const point=parseCoordinates($("aMapLink").value);if(point){$("aLatitude").value=point.lat;$("aLongitude").value=point.lng}}
+function extractDetailCoordinates(){const point=parseCoordinates($("dMapLink").value);if(point){$("dLatitude").value=point.lat;$("dLongitude").value=point.lng}}
+
+function filteredCustomers(){
+  const query=$("customerSearch").value.trim().toLowerCase(),location=$("customerLocationFilter").value,status=$("customerStatusFilter").value;
+  return state.customers.filter(item=>(!query||[item.customerId,item.name,item.phone,item.address].join(" ").toLowerCase().includes(query))&&(!location||item.locationCode===location)&&(!status||String(bool(item.active))===status));
+}
+function renderCustomerTable(){
+  const list=filteredCustomers();
+  $("customerTableBody").innerHTML=list.length?list.map(item=>'<tr><td><strong>'+esc(item.customerId||"—")+'</strong></td><td>'+esc(item.name)+'</td><td>'+esc(item.phone||"—")+'</td><td>'+esc(item.address||"—")+'</td><td>'+esc(item.locationCode||"—")+'</td><td>'+(hasMap(item)?'<span class="badge green">Ready</span>':'<span class="badge red">Missing</span>')+'</td><td>'+(bool(item.active)?'<span class="badge green">Active</span>':'<span class="badge red">Inactive</span>')+'</td><td><button class="row-btn" onclick="openCustomerDetail(\''+escJs(item.customerId)+'\')">Manage</button></td></tr>').join(""):'<tr><td colspan="8" class="empty">No customers found.</td></tr>';
+}
+function escJs(value){return String(value??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function clearFilters(){$("customerSearch").value="";$("customerLocationFilter").value="";$("customerStatusFilter").value="";renderCustomerTable()}
+
+async function openCustomerDetail(customerId){
+  const customer=state.customers.find(item=>item.customerId===customerId);if(!customer)return;
+  state.selected={...customer};$("customerListCard").classList.add("hidden");$("customerDetailCard").classList.remove("hidden");
+  $("detailTitle").textContent=customer.name;$("detailIdBadge").textContent=customer.customerId;
+  $("dCustomerId").value=customer.customerId||"";$("dName").value=customer.name||"";$("dPhone").value=customer.phone||"";$("dAddress").value=customer.address||"";$("dLocation").innerHTML=locationOptions(customer.locationCode);$("dActive").value=String(bool(customer.active));$("dMapLink").value=customer.googleMapsLink||"";$("dLatitude").value=customer.latitude||"";$("dLongitude").value=customer.longitude||"";$("dDeliveryNote").value=customer.deliveryLocationNote||"";
+  showLoading(true,"Loading customer products and prices…");
+  try{const result=await apiGet("customerProductPrices",{customer:customer.name});state.prices=result.products||[];renderPriceTable()}
+  catch(error){state.prices=[];renderPriceTable();toast(error.message,true)}
+  finally{showLoading(false)}
+}
+function closeCustomerDetail(){$("customerDetailCard").classList.add("hidden");$("customerListCard").classList.remove("hidden");state.selected=null;state.prices=[]}
+function detailPayload(){return{customerId:$("dCustomerId").value,name:$("dName").value.trim(),phone:$("dPhone").value.trim(),address:$("dAddress").value.trim(),locationCode:$("dLocation").value,active:$("dActive").value,googleMapsLink:$("dMapLink").value.trim(),latitude:$("dLatitude").value.trim(),longitude:$("dLongitude").value.trim(),deliveryLocationNote:$("dDeliveryNote").value.trim()}}
+async function saveCustomerDetail(){
+  const data=detailPayload();if(!data.name||!data.locationCode)return toast("Customer Name and Location Code are required.",true);
+  const button=$("detailSaveBtn");button.disabled=true;button.textContent="Saving…";showLoading(true,"Updating customer…");
+  try{const result=await apiPost("saveCustomer",data);toast("Customer information updated.");await loadApp();await openCustomerDetail(result.customer.customerId)}
+  catch(error){toast(error.message,true)}
+  finally{button.disabled=false;button.textContent="Save Customer Information";showLoading(false)}
+}
+
+function renderPriceTable(){
+  $("priceCount").textContent=state.prices.length+" Products";
+  $("priceTableBody").innerHTML=state.prices.length?state.prices.map((item,index)=>'<tr class="'+(item.isCustomPrice?"custom":"")+'" id="priceRow'+index+'"><td><strong>'+esc(item.productCode)+'</strong></td><td>'+esc(item.productName)+'</td><td>'+esc(item.unit||"—")+'</td><td class="price-default">'+money(item.defaultPriceUSD)+'</td><td><input type="number" min="0" step="0.01" value="'+num(item.customerPriceUSD)+'" oninput="priceChanged('+index+',this.value)"></td><td id="priceType'+index+'">'+(item.isCustomPrice?'<span class="price-diff">CUSTOM PRICE</span>':'<span class="badge green">DEFAULT</span>')+'</td><td><button class="row-btn" onclick="resetPrice('+index+')">Reset Default</button></td></tr>').join(""):'<tr><td colspan="7" class="empty">No active products found.</td></tr>';
+}
+function priceChanged(index,value){state.prices[index].customerPriceUSD=num(value);state.prices[index].isCustomPrice=Math.abs(state.prices[index].customerPriceUSD-state.prices[index].defaultPriceUSD)>.0000001;$("priceRow"+index).classList.toggle("custom",state.prices[index].isCustomPrice);$("priceType"+index).innerHTML=state.prices[index].isCustomPrice?'<span class="price-diff">CUSTOM PRICE</span>':'<span class="badge green">DEFAULT</span>'}
+function resetPrice(index){state.prices[index].customerPriceUSD=state.prices[index].defaultPriceUSD;state.prices[index].resetToDefault=true;renderPriceTable()}
+function resetAllPrices(){state.prices.forEach(item=>{item.customerPriceUSD=item.defaultPriceUSD;item.resetToDefault=true});renderPriceTable()}
+async function savePrices(){
+  if(!state.selected)return;const button=$("priceSaveBtn");button.disabled=true;button.textContent="Saving…";showLoading(true,"Saving customer prices…");
+  const prices=state.prices.map(item=>({productCode:item.productCode,priceUSD:item.customerPriceUSD,resetToDefault:item.resetToDefault===true}));
+  try{const result=await apiPost("saveCustomerPrices",{customerId:state.selected.customerId,prices});state.prices=result.catalog&&result.catalog.products?result.catalog.products:state.prices;renderPriceTable();toast(result.savedCount+" product prices saved.")}
+  catch(error){toast(error.message,true)}
+  finally{button.disabled=false;button.textContent="Save Customer Prices";showLoading(false)}
+}
+
+function hasCoordinates(item){const lat=Number(item.latitude),lng=Number(item.longitude);return Number.isFinite(lat)&&Number.isFinite(lng)&&String(item.latitude)!==""&&String(item.longitude)!==""}
+function hasMap(item){return hasCoordinates(item)||Boolean(item.googleMapsLink)}
+function mapUrl(item,navigate=false){if(hasCoordinates(item))return "https://www.google.com/maps/"+(navigate?"dir/?api=1&destination=":"search/?api=1&query=")+encodeURIComponent(item.latitude+","+item.longitude);return item.googleMapsLink||""}
+function openMapFor(customerId,navigate=false){const item=state.customers.find(customer=>customer.customerId===customerId);if(!item||!hasMap(item))return toast("This customer has no map location.",true);window.open(mapUrl(item,navigate),"_blank","noopener")}
+function openSelectedMap(){if(!state.selected)return;openMapFor(state.selected.customerId,false)}
+function renderMapList(){
+  const box=$("mapCustomerList");if(!box)return;const query=$("mapSearch").value.trim().toLowerCase();const list=state.customers.filter(item=>!query||[item.name,item.customerId,item.address].join(" ").toLowerCase().includes(query));
+  box.innerHTML=list.length?list.map(item=>'<div class="map-customer"><strong>'+esc(item.name)+'</strong><small>'+esc(item.address||item.deliveryLocationNote||"No address")+'</small><div class="map-actions">'+(hasMap(item)?'<button class="row-btn" onclick="focusMarker(\''+escJs(item.customerId)+'\')">Show</button><button class="row-btn" onclick="openMapFor(\''+escJs(item.customerId)+'\',true)">Navigate</button>':'<span class="badge red">Location Missing</span>')+'</div></div>').join(""):'<div class="empty">No customers found.</div>';
+}
+function renderMap(){
+  if(typeof L==="undefined"){toast("Map library could not load. Navigation buttons still work.",true);return}
+  if(!state.map){state.map=L.map("customerMap").setView([11.5564,104.9282],12);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(state.map)}
+  state.markers.forEach(marker=>marker.remove());state.markers=[];const points=[];
+  state.customers.filter(hasCoordinates).forEach(item=>{const point=[Number(item.latitude),Number(item.longitude)];const marker=L.marker(point).addTo(state.map).bindPopup("<strong>"+esc(item.name)+"</strong><br>"+esc(item.address||"")+"<br><br><a href='"+esc(mapUrl(item,true))+"' target='_blank'>Start Google Maps Navigation</a>");marker.customerId=item.customerId;state.markers.push(marker);points.push(point)});
+  if(points.length)state.map.fitBounds(points,{padding:[30,30],maxZoom:16});setTimeout(()=>state.map.invalidateSize(),50);renderMapList()
+}
+function focusMarker(customerId){const marker=state.markers.find(item=>item.customerId===customerId);if(marker){state.map.setView(marker.getLatLng(),17);marker.openPopup()}else openMapFor(customerId,false)}
+
+loadApp();
 </script>
 </body>
 </html>
