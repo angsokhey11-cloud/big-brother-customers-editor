@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BIG BROTHER — Customers Editor V2 Fast Sync</title>
+  <title>BIG BROTHER — Customers Editor V2.1 Dashboard Workspace</title>
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
@@ -39,6 +39,34 @@
     .toast{position:fixed;right:18px;bottom:18px;z-index:1000;max-width:390px;padding:12px 15px;border-radius:9px;background:#173c32;color:#fff;font-size:12px;font-weight:800;box-shadow:0 12px 35px rgba(0,0,0,.2);display:none}.toast.show{display:block}.toast.error{background:#98343d}
     @media(max-width:1050px){.app{grid-template-columns:76px minmax(0,1fr)}.brand{font-size:13px}.brand-sub,.nav-title,.nav-item span,.side-note{display:none}.nav-item{justify-content:center;font-size:19px}.form-grid.four{grid-template-columns:1fr 1fr}.map-layout{grid-template-columns:1fr}.map-list{max-height:320px}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search-main{grid-column:1/-1}}
     @media(max-width:700px){.app{display:block}.sidebar{position:static;height:auto;display:flex;align-items:center;gap:6px;padding:9px}.brand{width:60px}.nav-title,.brand-sub,.side-note{display:none}.nav-item{width:auto;flex:1;margin:0;font-size:11px;justify-content:center}.nav-item span{display:inline}.topbar{padding:10px 12px}.title h1{font-size:19px}.workspace{padding:9px}.summary{grid-template-columns:1fr 1fr}.form-grid,.form-grid.four,.toolbar{grid-template-columns:1fr}.toolbar .search-main{grid-column:auto}.map{height:470px}.actions{flex-wrap:wrap}.actions .btn{flex:1}}
+
+    /* ==========================================================
+       V2.1 — DASHBOARD WORKSPACE MODE
+       When loaded by the BIG BROTHER Dashboard (?embed=1 or
+       shellModule=...), the Dashboard sidebar is the ONLY menu.
+       Direct standalone opening still keeps this app's own menu.
+       ========================================================== */
+    body.shell-embedded .app{
+      display:block;
+      min-height:100vh;
+    }
+
+    body.shell-embedded .sidebar{
+      display:none!important;
+    }
+
+    body.shell-embedded .main{
+      width:100%;
+      min-width:0;
+    }
+
+    body.shell-embedded .topbar{
+      width:100%;
+    }
+
+    body.shell-embedded .workspace{
+      width:100%;
+    }
   </style>
 </head>
 <body>
@@ -182,6 +210,50 @@ const pageInfo={
   map:["Customer Map","Find customers and open delivery navigation."],
   details:["All Customer Details","Edit customer information and individual product prices."]
 };
+
+function shellParams(){
+  return new URLSearchParams(location.search);
+}
+
+function isEmbeddedWorkspace(){
+  const params=shellParams();
+  return params.get("embed")==="1"||Boolean(params.get("shellModule"));
+}
+
+function resolveInitialPage(){
+  const params=shellParams();
+
+  const requested=String(params.get("view")||"")
+    .trim()
+    .toLowerCase();
+
+  if(["add","map","details"].includes(requested)){
+    return requested;
+  }
+
+  const shellModule=String(params.get("shellModule")||"")
+    .trim()
+    .toLowerCase();
+
+  if(shellModule==="customers-add")return "add";
+  if(shellModule==="customers-map")return "map";
+  if(
+    shellModule==="customers-details"||
+    shellModule==="customers-editor"
+  ){
+    return "details";
+  }
+
+  // Standalone Customers Editor keeps the original default.
+  return "add";
+}
+
+function applyWorkspaceMode(){
+  document.body.classList.toggle(
+    "shell-embedded",
+    isEmbeddedWorkspace()
+  );
+}
 
 function esc(value){
   return String(value??"").replace(
@@ -409,6 +481,8 @@ document.querySelectorAll(".nav-item").forEach(button=>
 );
 
 function openPage(name){
+  if(!pageInfo[name])name="add";
+
   document.querySelectorAll(".nav-item").forEach(button=>
     button.classList.toggle("active",button.dataset.page===name)
   );
@@ -420,6 +494,14 @@ function openPage(name){
   $("page-"+name).classList.add("active");
   $("pageTitle").textContent=pageInfo[name][0];
   $("pageSubtitle").textContent=pageInfo[name][1];
+
+  // In standalone mode the small internal navigation can still switch pages
+  // without reloading. In Dashboard mode the parent shell owns the URL/menu.
+  if(!isEmbeddedWorkspace()){
+    const url=new URL(location.href);
+    url.searchParams.set("view",name);
+    history.replaceState(null,"",url.pathname+url.search);
+  }
 
   if(name==="map")setTimeout(renderMap,80);
 }
@@ -1174,10 +1256,14 @@ window.addEventListener("storage",event=>{
   }catch(error){}
 });
 
-// FAST START:
-// 1) Device storage renders immediately when available.
-// 2) Live Master data refreshes quietly.
-// 3) Every 30s only the tiny revision endpoint is checked.
+// FAST START V2.1:
+// 1) Detect Dashboard workspace mode and hide the duplicate sidebar.
+// 2) Open the page requested by Dashboard (?view=add/map/details).
+// 3) Device storage renders immediately when available.
+// 4) Live Master data refreshes quietly.
+// 5) Every 30s only the tiny revision endpoint is checked.
+applyWorkspaceMode();
+openPage(resolveInitialPage());
 loadMainCache();
 loadApp(false);
 startSmartSync();
