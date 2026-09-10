@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BIG BROTHER — Import Customers</title>
+<style>
+:root{--nav:#123f70;--blue:#1769cf;--bg:#eef3f8;--card:#fff;--line:#d8e2ee;--text:#163354;--muted:#6d7f92;--green:#168652;--red:#c73f4a;--amber:#9c6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:18px}.wrap{max-width:1450px;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}.top h1{margin:0;color:var(--nav);font-size:25px}.top p{margin:5px 0 0;color:var(--muted);font-size:12px}.pill{padding:8px 11px;border-radius:999px;background:#edf5ff;color:#245da8;font-size:11px;font-weight:900}.card{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 7px 22px rgba(18,63,112,.06);margin-bottom:12px;overflow:hidden}.head{padding:13px 15px;border-bottom:1px solid #e8eef4;font-weight:900}.body{padding:15px}.grid{display:grid;grid-template-columns:1.4fr 1fr auto auto;gap:10px;align-items:end}.field label{display:block;font-size:10px;font-weight:900;color:#48627d;margin-bottom:5px}.field input,.field select{width:100%;min-height:42px;border:1px solid #ccd8e5;border-radius:8px;padding:9px 10px;background:#fff;color:var(--text)}.btn{min-height:42px;border:0;border-radius:8px;padding:9px 13px;font-weight:900;cursor:pointer}.primary{background:var(--blue);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#f4f8fb;color:#345879;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:not-allowed}.hint{margin-top:12px;padding:10px 12px;background:#eef7ff;border:1px solid #cce3fb;border-radius:9px;color:#315f8f;font-size:11px;line-height:1.55}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px}.stat span{display:block;color:var(--muted);font-size:9px;font-weight:900}.stat strong{display:block;margin-top:5px;font-size:19px}.tablewrap{overflow:auto;max-height:580px}table{width:100%;border-collapse:collapse;min-width:1180px;font-size:11px}th{position:sticky;top:0;background:#f1f5f9;color:#405a76;text-align:left;padding:9px;border-bottom:1px solid var(--line);z-index:1}td{padding:8px 9px;border-bottom:1px solid #edf1f5;vertical-align:top}.bad td{background:#fff3f3}.warn td{background:#fffaf0}.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900}.ok{background:#e8f7ef;color:#168652}.error{background:#fff0f1;color:#c73f4a}.muted{color:var(--muted)}.result{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#f4f8fb;font-size:12px;line-height:1.55}.result.show{display:block}.result.err{background:#fff0f1;color:#98343d}.loading{position:fixed;inset:0;background:rgba(238,243,248,.78);display:flex;align-items:center;justify-content:center;z-index:999}.loading.hidden{display:none}.loader{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px 23px;font-weight:900;box-shadow:0 15px 40px rgba(0,0,0,.14)}
+@media(max-width:800px){body{padding:9px}.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.top{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="loader" id="loadingText">Connecting to Supabase…</div></div>
+<div class="wrap">
+  <div class="top"><div><h1>⬆ Import Customer List</h1><p>Import Excel/CSV customers directly into the BIG BROTHER Supabase database.</p></div><div class="pill" id="locationPill">Loading locations…</div></div>
+
+  <div class="card"><div class="head">1. Choose Excel File</div><div class="body">
+    <div class="grid">
+      <div class="field"><label>Excel / CSV File</label><input id="fileInput" type="file" accept=".xlsx,.xls,.csv"></div>
+      <div class="field"><label>Import Mode</label><select id="mode"><option value="CREATE_ONLY">Create New Only (recommended)</option><option value="UPSERT">Update Existing + Create New</option></select></div>
+      <button class="btn ghost" id="templateBtn" type="button">Download Template</button>
+      <button class="btn primary" id="readBtn" type="button">Preview File</button>
+    </div>
+    <div class="hint"><strong>Recognized columns:</strong> Customer ID (optional), Customer Name, Phone, Address, Location Code or Location Name, Status/Active, Google Maps Link, Latitude, Longitude, Delivery Location Note. Customer Name + Location are required. New customers automatically receive every active product's default USD <strong>and KHR</strong> prices.</div>
+    <div class="result" id="message"></div>
+  </div></div>
+
+  <div class="summary">
+    <div class="stat"><span>ROWS</span><strong id="sRows">0</strong></div>
+    <div class="stat"><span>READY</span><strong id="sReady">0</strong></div>
+    <div class="stat"><span>INVALID</span><strong id="sInvalid">0</strong></div>
+    <div class="stat"><span>CREATED</span><strong id="sCreated">0</strong></div>
+    <div class="stat"><span>SKIPPED / UPDATED</span><strong id="sOther">0</strong></div>
+  </div>
+
+  <div class="card"><div class="head">2. Preview & Validate</div><div class="tablewrap"><table><thead><tr><th>Excel Row</th><th>Customer ID</th><th>Customer Name</th><th>Phone</th><th>Location</th><th>Address</th><th>Status</th><th>Map Link</th><th>Latitude</th><th>Longitude</th><th>Delivery Note</th><th>Validation</th></tr></thead><tbody id="preview"><tr><td colspan="12" style="padding:28px;text-align:center" class="muted">Choose a file and click Preview File.</td></tr></tbody></table></div><div class="body" style="display:flex;justify-content:flex-end;gap:8px"><button class="btn green" id="importBtn" type="button" disabled>Import Ready Rows to Supabase</button></div></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="supabase-customers-adapter.js?v=20260910-2"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);let locations=[],readyRows=[],previewRows=[];
+const clean=v=>String(v??'').trim();const key=v=>clean(v).toLowerCase().replace(/[^a-z0-9]/g,'');
+const esc=v=>clean(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const aliases={
+ customerId:['customerid','customercode','id'],name:['customername','name','customer'],phone:['phone','phonenumber','telephone','tel'],address:['address','customeraddress'],
+ location:['locationcode','location','branch','locationname'],active:['active','status','customerstatus'],map:['googlemapslink','googlemaplink','mapslink','maplink'],
+ latitude:['latitude','lat'],longitude:['longitude','lng','lon','long'],delivery:['deliverylocationnote','deliverynote','locationnote','note']
+};
+function colIndex(headers,names){for(const a of names){const i=headers.findIndex(h=>key(h)===a);if(i>=0)return i;}return -1;}
+function val(row,i){return i>=0?clean(row[i]):'';}
+function resolveLocation(raw){const s=clean(raw);if(!s)return '';const code=s.toUpperCase();const byCode=locations.find(l=>String(l.locationCode||'').toUpperCase()===code);if(byCode)return byCode.locationCode;const k=key(s);const byName=locations.find(l=>key(l.locationName)===k);return byName?byName.locationCode:'';}
+function activeValue(v){const s=clean(v).toLowerCase();return !['false','0','no','inactive','disabled'].includes(s);}
+function validNumber(v,min,max){if(clean(v)==='')return true;const n=Number(v);return Number.isFinite(n)&&n>=min&&n<=max;}
+function setMessage(text,error=false){const el=$('message');el.textContent=text||'';el.className='result'+(text?' show':'')+(error?' err':'');}
+function showLoading(show,text){$('loading').classList.toggle('hidden',!show);if(text)$('loadingText').textContent=text;}
+function render(){
+ $('sRows').textContent=previewRows.length;$('sReady').textContent=readyRows.length;$('sInvalid').textContent=previewRows.length-readyRows.length;
+ $('preview').innerHTML=previewRows.length?previewRows.map(r=>'<tr class="'+(r.valid?'':'bad')+'"><td>'+r.excelRow+'</td><td>'+esc(r.customerId||'—')+'</td><td><strong>'+esc(r.name)+'</strong></td><td>'+esc(r.phone||'—')+'</td><td>'+esc(r.locationCode||r.locationRaw||'—')+'</td><td>'+esc(r.address||'—')+'</td><td>'+esc(r.active?'Active':'Inactive')+'</td><td>'+esc(r.googleMapsLink||'—')+'</td><td>'+esc(r.latitude||'—')+'</td><td>'+esc(r.longitude||'—')+'</td><td>'+esc(r.deliveryLocationNote||'—')+'</td><td>'+(r.valid?'<span class="badge ok">READY</span>':'<span class="badge error">'+esc(r.errors.join(' · '))+'</span>')+'</td></tr>').join(''):'<tr><td colspan="12" style="padding:28px;text-align:center" class="muted">No data rows found.</td></tr>';
+ $('importBtn').disabled=!readyRows.length;
+}
+async function boot(){try{showLoading(true,'Loading permitted locations…');const data=await BBCustomersAdapter.apiGet('customerEditorBootstrap');locations=Array.isArray(data.locations)?data.locations:[];$('locationPill').textContent=locations.length+' permitted locations';}catch(e){setMessage(e.message||String(e),true);$('locationPill').textContent='Access denied';}finally{showLoading(false);}}
+function parseSheet(matrix){
+ if(!matrix.length)throw new Error('The file is empty.');const headers=matrix[0].map(clean);
+ const idx={};Object.entries(aliases).forEach(([k,a])=>idx[k]=colIndex(headers,a));
+ if(idx.name<0)throw new Error('Customer Name column was not found.');if(idx.location<0)throw new Error('Location Code or Location column was not found.');
+ previewRows=[];
+ for(let i=1;i<matrix.length;i++){
+   const row=matrix[i];if(!row||row.every(v=>clean(v)===''))continue;
+   const locationRaw=val(row,idx.location),locationCode=resolveLocation(locationRaw),name=val(row,idx.name),lat=val(row,idx.latitude),lng=val(row,idx.longitude),errors=[];
+   if(!name)errors.push('Customer Name required');if(!locationRaw)errors.push('Location required');else if(!locationCode)errors.push('Unknown Location');if(!validNumber(lat,-90,90))errors.push('Bad latitude');if(!validNumber(lng,-180,180))errors.push('Bad longitude');
+   previewRows.push({excelRow:i+1,customerId:val(row,idx.customerId),name,phone:val(row,idx.phone),address:val(row,idx.address),locationRaw,locationCode,active:activeValue(val(row,idx.active)),googleMapsLink:val(row,idx.map),latitude:lat,longitude:lng,deliveryLocationNote:val(row,idx.delivery),errors,valid:errors.length===0});
+ }
+ readyRows=previewRows.filter(r=>r.valid).map(r=>({customerId:r.customerId,name:r.name,phone:r.phone,address:r.address,locationCode:r.locationCode,active:r.active,googleMapsLink:r.googleMapsLink,latitude:r.latitude,longitude:r.longitude,deliveryLocationNote:r.deliveryLocationNote}));render();
+}
+$('readBtn').addEventListener('click',async()=>{try{setMessage('');const file=$('fileInput').files[0];if(!file)throw new Error('Choose an Excel or CSV file first.');if(typeof XLSX==='undefined')throw new Error('Excel reader library did not load.');showLoading(true,'Reading '+file.name+'…');const ab=await file.arrayBuffer();const wb=XLSX.read(ab,{type:'array'});if(!wb.SheetNames.length)throw new Error('No worksheet was found.');const matrix=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:false});parseSheet(matrix);setMessage('Preview ready. '+readyRows.length+' rows are valid for import.');}catch(e){previewRows=[];readyRows=[];render();setMessage(e.message||String(e),true);}finally{showLoading(false);}});
+$('importBtn').addEventListener('click',async()=>{if(!readyRows.length)return;const mode=$('mode').value;const label=mode==='UPSERT'?'update existing customers and create new customers':'create new customers and skip duplicates';if(!confirm('Import '+readyRows.length+' ready rows?\n\nMode: '+label))return;try{showLoading(true,'Importing customers to Supabase…');setMessage('');const result=await BBCustomersAdapter.apiPost('importCustomers',{rows:readyRows,mode});$('sCreated').textContent=result.created||0;$('sOther').textContent=(result.updated||0)+' / '+(result.skipped||0);localStorage.removeItem('BB_CUSTOMERS_EDITOR_CACHE_V2');Object.keys(localStorage).filter(k=>k.startsWith('BB_CUSTOMERS_EDITOR_PRICE_CACHE_V2_')).forEach(k=>localStorage.removeItem(k));const errors=(result.results||[]).filter(r=>r.status==='ERROR');setMessage('Import complete: '+(result.created||0)+' created, '+(result.updated||0)+' updated, '+(result.skipped||0)+' skipped, '+(result.errors||0)+' errors.'+(errors.length?' First error: '+(errors[0].message||'Unknown error'):''),!!result.errors);}catch(e){setMessage(e.message||String(e),true);}finally{showLoading(false);}});
+$('templateBtn').addEventListener('click',()=>{const csv='Customer Name,Phone,Address,Location Code,Status,Google Maps Link,Latitude,Longitude,Delivery Location Note\nExample Customer,012345678,Phnom Penh,PP-01,Active,,,,Blue gate\n';const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='BIG-BROTHER-Customer-Import-Template.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);});
+boot();
+})();
+</script>
+</body></html>
