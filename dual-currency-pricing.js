@@ -1,4 +1,4 @@
-/* BIG BROTHER — Customers Editor Dual Currency Pricing V1 */
+/* BIG BROTHER — Customers Editor Dual Currency Pricing V1.1 */
 (function(){
   'use strict';
 
@@ -138,7 +138,26 @@
     if(add)add.innerHTML='When saved, all active products are added to this customer using each product’s default Price USD <strong>and</strong> default Price KHR. Individual prices can be changed later in All Customer Details.';
   }
 
+  function addImportButton(){
+    if(byId('bbImportCustomersBtn'))return;
+    const save=byId('addSaveBtn');
+    const actions=save?.closest('.actions');
+    if(!actions)return;
+    const button=document.createElement('button');
+    button.type='button';
+    button.id='bbImportCustomersBtn';
+    button.className='btn primary';
+    button.textContent='⬆ Import Excel';
+    button.title='Import a customer list from Excel or CSV';
+    button.addEventListener('click',()=>{
+      const embedded=new URLSearchParams(location.search).get('embed')==='1';
+      location.href='import-customers.html'+(embedded?'?embed=1':'');
+    });
+    actions.insertBefore(button,save);
+  }
+
   upgradeHeader();
   upgradeAddInfo();
+  addImportButton();
   try{if(Array.isArray(state.prices)&&state.prices.length)renderPriceTable();}catch(_){}
 })();
