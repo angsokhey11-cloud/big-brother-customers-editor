@@ -10,11 +10,16 @@
 <script>
 (async function(){
   try{
-    const response=await fetch('legacy-google-v2.1.html?v=20260910-1',{cache:'no-store'});
+    try{
+      localStorage.removeItem('BB_CUSTOMERS_EDITOR_CACHE_V2');
+      Object.keys(localStorage).filter(k=>k.startsWith('BB_CUSTOMERS_EDITOR_PRICE_CACHE_V2_')).forEach(k=>localStorage.removeItem(k));
+    }catch(_){}
+
+    const response=await fetch('legacy-google-v2.1.html?v=20260910-2',{cache:'no-store'});
     if(!response.ok)throw new Error('Could not load Customers Editor source.');
     let html=await response.text();
 
-    const adapter='<scr'+'ipt src="supabase-customers-adapter.js?v=20260910-1"></scr'+'ipt>';
+    const adapter='<scr'+'ipt src="supabase-customers-adapter.js?v=20260910-2"></scr'+'ipt>';
     const headClose=html.toLowerCase().indexOf('</head>');
     if(headClose<0)throw new Error('Customers Editor source is missing </head>.');
     html=html.slice(0,headClose)+adapter+'\n'+html.slice(headClose);
@@ -30,17 +35,22 @@ ${marker}`;
     if(!html.includes(marker))throw new Error('Customers Editor initialization marker was not found.');
     html=html.replace(marker,replacement);
 
-    html=html.replace('<title>BIG BROTHER — Customers Editor V2.1 Dashboard Workspace</title>','<title>BIG BROTHER — Customers Editor Supabase</title>');
+    html=html.replace('<title>BIG BROTHER — Customers Editor V2.1 Dashboard Workspace</title>','<title>BIG BROTHER — Customers Editor Supabase Dual Currency</title>');
     html=html.replaceAll('Master Database','Supabase Database');
     html=html.replaceAll('Master data','Supabase data');
     html=html.replaceAll('Connected · V6.4.4','Connected · Supabase DEV');
+
+    const bodyClose=html.toLowerCase().lastIndexOf('</body>');
+    if(bodyClose<0)throw new Error('Customers Editor source is missing </body>.');
+    const dual='<scr'+'ipt src="dual-currency-pricing.js?v=20260910-1"></scr'+'ipt>\n';
+    html=html.slice(0,bodyClose)+dual+html.slice(bodyClose);
 
     document.open();
     document.write(html);
     document.close();
   }catch(error){
     console.error(error);
-    document.body.innerHTML='<div class="bb-loader"><div class="bb-card">Could not open Customers Editor<div class="bb-sub">'+String(error?.message||error)+'</div></div></div>';
+    document.body.innerHTML='<div class="bb-loader"><div class="bb-card">Could not open Customers Editor<div class="bb-sub">'+String(error&&error.message||error)+'</div></div></div>';
   }
 })();
 </script>
