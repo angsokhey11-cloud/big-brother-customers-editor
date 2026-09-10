@@ -1,4 +1,4 @@
-/* BIG BROTHER — Customers Editor Supabase Adapter V1 */
+/* BIG BROTHER — Customers Editor Supabase Adapter V1.1 */
 (function(){
   'use strict';
 
@@ -16,9 +16,7 @@
     session=s||null;
     try{
       if(!s){localStorage.removeItem(SESSION_KEY);return;}
-      if(!s.expires_at&&s.expires_in){
-        s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in);
-      }
+      if(!s.expires_at&&s.expires_in){s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in);}
       localStorage.setItem(SESSION_KEY,JSON.stringify(s));
     }catch(_){}
   }
@@ -28,39 +26,24 @@
     let data={};
     try{data=text?JSON.parse(text):{}}
     catch(_){data={message:text}}
-    if(!response.ok){
-      throw new Error(
-        data.message||data.error_description||data.error||
-        ('Database request failed ('+response.status+')')
-      );
-    }
+    if(!response.ok){throw new Error(data.message||data.error_description||data.error||('Database request failed ('+response.status+')'));}
     return data;
   }
 
   async function refreshSession(){
     const current=readSession();
-    if(!current?.refresh_token){
-      throw new Error('Please sign in to BIG BROTHER first from the Clients Editor.');
-    }
+    if(!current?.refresh_token)throw new Error('Please sign in to BIG BROTHER from the Dashboard first.');
     const response=await fetch(URL+'/auth/v1/token?grant_type=refresh_token',{
-      method:'POST',
-      headers:{apikey:KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({refresh_token:current.refresh_token})
+      method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:current.refresh_token})
     });
-    const next=await parse(response);
-    saveSession(next);
-    return next;
+    const next=await parse(response);saveSession(next);return next;
   }
 
   async function ensureSession(){
     session=readSession();
-    if(!session?.access_token){
-      throw new Error('Please sign in to BIG BROTHER first from the Clients Editor.');
-    }
+    if(!session?.access_token)throw new Error('Please sign in to BIG BROTHER from the Dashboard first.');
     const now=Math.floor(Date.now()/1000);
-    if(session.expires_at&&Number(session.expires_at)<now+30){
-      await refreshSession();
-    }
+    if(session.expires_at&&Number(session.expires_at)<now+30)await refreshSession();
     return session;
   }
 
@@ -68,50 +51,42 @@
     await ensureSession();
     const response=await fetch(URL+'/rest/v1/rpc/'+fn,{
       method:'POST',
-      headers:{
-        apikey:KEY,
-        Authorization:'Bearer '+session.access_token,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(args||{}),
-      cache:'no-store'
+      headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+      body:JSON.stringify(args||{}),cache:'no-store'
     });
     return parse(response);
   }
 
   async function apiGet(action,params={}){
     switch(String(action||'')){
-      case 'customerEditorBootstrap':
-        return rpc('bb_customer_editor_bootstrap');
+      case 'customerEditorBootstrap': return rpc('bb_customer_editor_bootstrap');
       case 'customerEditorRevision': {
         const revision=await rpc('bb_customer_editor_revision');
         return {success:true,revision:String(revision||'0')};
       }
       case 'customerProductPrices':
-        if(!params.customerId){
-          throw new Error('Customer ID is required for Supabase price lookup.');
-        }
-        return rpc('bb_customer_editor_prices',{
-          p_customer_id:String(params.customerId)
-        });
-      default:
-        throw new Error('Unsupported Customers Editor read action: '+action);
+        if(!params.customerId)throw new Error('Customer ID is required for Supabase price lookup.');
+        return rpc('bb_customer_editor_prices',{p_customer_id:String(params.customerId)});
+      default: throw new Error('Unsupported Customers Editor read action: '+action);
     }
   }
 
   async function apiPost(action,payload={}){
     switch(String(action||'')){
-      case 'saveCustomer':
-        return rpc('bb_customer_editor_save_customer',{p_payload:payload||{}});
+      case 'saveCustomer': return rpc('bb_customer_editor_save_customer',{p_payload:payload||{}});
       case 'saveCustomerPrices':
         return rpc('bb_customer_editor_save_prices',{
           p_customer_id:String(payload.customerId||''),
           p_prices:Array.isArray(payload.prices)?payload.prices:[]
         });
-      default:
-        throw new Error('Unsupported Customers Editor write action: '+action);
+      case 'importCustomers':
+        return rpc('bb_customer_editor_import_customers',{
+          p_rows:Array.isArray(payload.rows)?payload.rows:[],
+          p_mode:String(payload.mode||'CREATE_ONLY')
+        });
+      default: throw new Error('Unsupported Customers Editor write action: '+action);
     }
   }
 
-  window.BBCustomersAdapter={rpc,apiGet,apiPost};
+  window.BBCustomersAdapter={rpc,apiGet,apiPost,ensureSession};
 })();
