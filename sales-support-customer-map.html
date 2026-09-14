@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BIG BROTHER — Customer Map</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--nav:#123f70;--blue:#1769cf;--bg:#eef3f8;--card:#fff;--line:#d8e2ee;--text:#163354;--muted:#6d7f92;--green:#168652;--red:#c73f4a;--amber:#9c6700}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}body{padding:18px}.wrap{max-width:1480px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}.top h1{margin:0;color:var(--nav);font-size:27px}.top p{margin:6px 0 0;color:var(--muted);font-size:12px}.scope{background:#eaf3ff;border:1px solid #cfe0f5;border-radius:999px;padding:9px 12px;color:var(--nav);font-size:11px;font-weight:900;white-space:nowrap}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;box-shadow:0 6px 18px rgba(18,63,112,.04)}.summary-card span{font-size:10px;color:var(--muted);font-weight:900}.summary-card strong{display:block;margin-top:5px;font-size:21px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px rgba(18,63,112,.05);overflow:hidden}.toolbar{padding:12px;display:grid;grid-template-columns:minmax(220px,1fr) 220px auto;gap:8px;border-bottom:1px solid var(--line)}input,select{width:100%;height:40px;border:1px solid #ccd8e5;border-radius:9px;padding:0 10px;color:var(--text);background:#fff;outline:none}input:focus,select:focus{border-color:#5d9ee8;box-shadow:0 0 0 3px rgba(23,105,207,.08)}button{font:inherit;cursor:pointer}.btn{height:40px;border:0;border-radius:9px;padding:0 13px;font-size:11px;font-weight:900}.btn.primary{background:var(--nav);color:#fff}.map-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:12px;padding:12px}.map{height:610px;border-radius:12px;border:1px solid var(--line);background:#dbe5ec;overflow:hidden}.side{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;max-height:610px;display:flex;flex-direction:column}.side-head{padding:13px 14px;border-bottom:1px solid var(--line)}.side-head strong{display:block;font-size:14px}.side-head span{display:block;margin-top:4px;font-size:10px;color:var(--muted)}.list{overflow:auto;flex:1}.customer{padding:12px;border-bottom:1px solid #edf1f5}.customer:last-child{border-bottom:0}.customer-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.customer strong{font-size:12px}.badge{font-size:9px;font-weight:900;border-radius:999px;padding:4px 7px;background:#e8f7ef;color:var(--green)}.badge.off{background:#fff0f1;color:var(--red)}.meta{margin-top:5px;color:var(--muted);font-size:10px;line-height:1.45}.note{margin-top:7px;font-size:10px;color:#49657f}.actions{display:flex;gap:6px;margin-top:9px}.small-btn{border:1px solid #cbd9e7;background:#fff;color:var(--blue);border-radius:8px;padding:7px 9px;font-size:10px;font-weight:900}.small-btn:disabled{opacity:.45;cursor:not-allowed}.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:12px}.status{padding:10px 12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted)}.error{margin-bottom:12px;padding:11px 12px;border:1px solid #f0c5c8;background:#fff0f1;color:#a4323d;border-radius:10px;font-size:11px;font-weight:800}.footer{text-align:center;color:#98a2b3;font-size:10px;padding:15px 0 2px}
+@media(max-width:900px){body{padding:10px}.summary{grid-template-columns:1fr 1fr}.map-layout{grid-template-columns:1fr}.map{height:52vh;min-height:360px}.side{max-height:420px}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search{grid-column:1/-1}}
+@media(max-width:560px){body{padding:0}.wrap{max-width:none}.top{padding:14px 14px 9px;margin:0;flex-direction:column}.top h1{font-size:22px}.scope{white-space:normal}.summary{padding:0 10px;gap:7px}.summary-card{padding:10px}.summary-card strong{font-size:17px}.panel{border-radius:0;border-left:0;border-right:0}.toolbar{grid-template-columns:1fr;padding:10px}.toolbar .search{grid-column:auto}.map-layout{padding:9px}.map{height:47vh;min-height:330px}.side{max-height:46vh}.customer{padding:11px}.footer{padding-bottom:84px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>📍 Customer Map</h1><p>Customer delivery locations from your assigned BIG BROTHER locations only.</p></div>
+    <div class="scope" id="scopeLabel">Assigned locations only</div>
+  </div>
+  <div id="errorBox" class="error" hidden></div>
+  <div class="summary">
+    <div class="summary-card"><span>YOUR CUSTOMERS</span><strong id="sumTotal">0</strong></div>
+    <div class="summary-card"><span>ON MAP</span><strong id="sumMapped">0</strong></div>
+    <div class="summary-card"><span>MISSING LOCATION</span><strong id="sumMissing">0</strong></div>
+    <div class="summary-card"><span>ACTIVE</span><strong id="sumActive">0</strong></div>
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <input class="search" id="searchBox" placeholder="Search customer, phone, address…">
+      <select id="locationFilter"><option value="">All assigned locations</option></select>
+      <button class="btn primary" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+    <div class="map-layout">
+      <div id="customerMap" class="map"></div>
+      <div class="side">
+        <div class="side-head"><strong>Delivery Customers</strong><span id="listCount">0 customers</span></div>
+        <div id="customerList" class="list"><div class="empty">Loading customers…</div></div>
+        <div id="statusText" class="status">Connecting to BIG BROTHER…</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">BIG BROTHER Accounting System · Sales Support · Customer Map</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="supabase-customers-adapter.js?v=20260910-2"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const clean=v=>String(v==null?'':v).trim();
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+let payload=null,rows=[],map=null,layer=null,markers=new Map();
+
+function showError(text){const e=$('errorBox');e.textContent=text||'';e.hidden=!text}
+function hasCoords(r){return Number.isFinite(Number(r.latitude))&&Number.isFinite(Number(r.longitude))&&clean(r.latitude)!==''&&clean(r.longitude)!==''}
+function mapLink(r,directions=false){
+  if(hasCoords(r)){
+    const point=Number(r.latitude).toFixed(7)+','+Number(r.longitude).toFixed(7);
+    return directions?'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(point):'https://www.google.com/maps?q='+encodeURIComponent(point);
+  }
+  return clean(r.googleMapsLink);
+}
+function openMaps(r,directions=false){const url=mapLink(r,directions);if(url)window.open(url,'_blank','noopener')}
+function focusCustomer(id){const m=markers.get(id);if(m&&map){map.setView(m.getLatLng(),17,{animate:true});m.openPopup()}}
+function filtered(){
+  const q=clean($('searchBox').value).toLowerCase(),loc=clean($('locationFilter').value).toLowerCase();
+  return rows.filter(r=>{
+    if(loc&&clean(r.locationCode).toLowerCase()!==loc)return false;
+    if(!q)return true;
+    return [r.customerId,r.name,r.phone,r.address,r.locationCode,r.locationName,r.deliveryLocationNote].some(v=>clean(v).toLowerCase().includes(q));
+  });
+}
+function renderSummary(){const s=payload?.summary||{};$('sumTotal').textContent=Number(s.total||0).toLocaleString();$('sumMapped').textContent=Number(s.mapped||0).toLocaleString();$('sumMissing').textContent=Number(s.missingLocation||0).toLocaleString();$('sumActive').textContent=Number(s.active||0).toLocaleString()}
+function renderLocations(){
+  const current=$('locationFilter').value;
+  const list=Array.isArray(payload?.locations)?payload.locations:[];
+  $('locationFilter').innerHTML='<option value="">All assigned locations</option>'+list.map(x=>'<option value="'+esc(clean(x.locationCode))+'">'+esc(clean(x.locationName)||clean(x.locationCode))+' ('+esc(clean(x.locationCode))+')</option>').join('');
+  if(list.some(x=>clean(x.locationCode)===current))$('locationFilter').value=current;
+  $('scopeLabel').textContent=list.length===1?'Assigned: '+(clean(list[0].locationName)||clean(list[0].locationCode)):list.length+' assigned locations';
+}
+function renderMap(){
+  if(typeof L==='undefined')return;
+  if(!map){
+    map=L.map('customerMap',{zoomControl:true}).setView([12.5657,104.9910],7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    layer=L.layerGroup().addTo(map);
+  }
+  layer.clearLayers();markers.clear();
+  const list=filtered().filter(hasCoords),bounds=[];
+  list.forEach(r=>{
+    const pos=[Number(r.latitude),Number(r.longitude)];bounds.push(pos);
+    const popup='<div style="min-width:180px"><strong>'+esc(r.name||r.customerId)+'</strong><br><small>'+esc(r.locationName||r.locationCode)+'</small><br><span style="font-size:11px">'+esc(r.address||'')+'</span></div>';
+    const marker=L.marker(pos).bindPopup(popup).addTo(layer);markers.set(clean(r.customerId),marker);
+  });
+  if(bounds.length===1)map.setView(bounds[0],16);else if(bounds.length>1)map.fitBounds(bounds,{padding:[30,30],maxZoom:16});else map.setView([12.5657,104.9910],7);
+  setTimeout(()=>map.invalidateSize(),50);
+}
+function renderList(){
+  const list=filtered();$('listCount').textContent=list.length+' customer'+(list.length===1?'':'s');
+  $('customerList').innerHTML=list.length?list.map(r=>{
+    const mapped=hasCoords(r),canOpen=!!mapLink(r,false);
+    return '<div class="customer"><div class="customer-top"><strong>'+esc(r.name||r.customerId)+'</strong><span class="badge '+(r.active?'':'off')+'">'+(r.active?'Active':'Inactive')+'</span></div><div class="meta">'+esc(r.customerId)+' · '+esc(r.locationName||r.locationCode)+'<br>'+esc(r.phone||'No phone')+'<br>'+esc(r.address||'No address')+'</div>'+(r.deliveryLocationNote?'<div class="note">📦 '+esc(r.deliveryLocationNote)+'</div>':'')+'<div class="actions"><button type="button" class="small-btn" data-focus="'+esc(r.customerId)+'" '+(mapped?'':'disabled')+'>Show Pin</button><button type="button" class="small-btn" data-map="'+esc(r.customerId)+'" '+(canOpen?'':'disabled')+'>Open Map</button><button type="button" class="small-btn" data-nav="'+esc(r.customerId)+'" '+(canOpen?'':'disabled')+'>Navigate</button></div></div>';
+  }).join(''):'<div class="empty">No customers match this filter.</div>';
+  const byId=new Map(rows.map(r=>[clean(r.customerId),r]));
+  $('customerList').querySelectorAll('[data-focus]').forEach(b=>b.onclick=()=>focusCustomer(b.dataset.focus));
+  $('customerList').querySelectorAll('[data-map]').forEach(b=>b.onclick=()=>{const r=byId.get(b.dataset.map);if(r)openMaps(r,false)});
+  $('customerList').querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{const r=byId.get(b.dataset.nav);if(r)openMaps(r,true)});
+}
+function render(){renderSummary();renderLocations();renderMap();renderList();$('statusText').textContent='Assigned-location customer data · read only'}
+async function load(){
+  showError('');$('refreshBtn').disabled=true;$('statusText').textContent='Refreshing customer map…';
+  try{
+    await window.BBCustomersAdapter.ensureSession();
+    payload=await window.BBCustomersAdapter.rpc('bb_sales_support_customer_map');
+    if(!payload?.success)throw new Error('Could not load Customer Map.');
+    rows=Array.isArray(payload.customers)?payload.customers:[];
+    render();
+  }catch(e){showError(e?.message||String(e));$('statusText').textContent='Could not load customer map';}
+  finally{$('refreshBtn').disabled=false}
+}
+$('searchBox').addEventListener('input',()=>{renderMap();renderList()});$('locationFilter').addEventListener('change',()=>{renderMap();renderList()});$('refreshBtn').addEventListener('click',load);window.addEventListener('focus',()=>load());load();
+})();
+</script>
+</body>
+</html>
