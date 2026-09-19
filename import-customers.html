@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BIG BROTHER — Import Customers</title>
+<title>BIG BROTHER — Import Customers & Prices</title>
 <style>
 :root{--nav:#123f70;--blue:#1769cf;--bg:#eef3f8;--card:#fff;--line:#d8e2ee;--text:#163354;--muted:#6d7f92;--green:#168652;--red:#c73f4a;--amber:#9c6700}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:18px}.wrap{max-width:1450px;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}.top h1{margin:0;color:var(--nav);font-size:25px}.top p{margin:5px 0 0;color:var(--muted);font-size:12px}.pill{padding:8px 11px;border-radius:999px;background:#edf5ff;color:#245da8;font-size:11px;font-weight:900}.card{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 7px 22px rgba(18,63,112,.06);margin-bottom:12px;overflow:hidden}.head{padding:13px 15px;border-bottom:1px solid #e8eef4;font-weight:900}.body{padding:15px}.grid{display:grid;grid-template-columns:1.4fr 1fr auto auto auto;gap:10px;align-items:end}.field label{display:block;font-size:10px;font-weight:900;color:#48627d;margin-bottom:5px}.field input,.field select{width:100%;min-height:42px;border:1px solid #ccd8e5;border-radius:8px;padding:9px 10px;background:#fff;color:var(--text)}.btn{min-height:42px;border:0;border-radius:8px;padding:9px 13px;font-weight:900;cursor:pointer}.primary{background:var(--blue);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#f4f8fb;color:#345879;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:not-allowed}.hint{margin-top:12px;padding:10px 12px;background:#eef7ff;border:1px solid #cce3fb;border-radius:9px;color:#315f8f;font-size:11px;line-height:1.55}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px}.stat span{display:block;color:var(--muted);font-size:9px;font-weight:900}.stat strong{display:block;margin-top:5px;font-size:19px}.tablewrap{overflow:auto;max-height:580px}table{width:100%;border-collapse:collapse;min-width:1180px;font-size:11px}th{position:sticky;top:0;background:#f1f5f9;color:#405a76;text-align:left;padding:9px;border-bottom:1px solid var(--line);z-index:1}td{padding:8px 9px;border-bottom:1px solid #edf1f5;vertical-align:top}.bad td{background:#fff3f3}.warn td{background:#fffaf0}.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900}.ok{background:#e8f7ef;color:#168652}.error{background:#fff0f1;color:#c73f4a}.muted{color:var(--muted)}.result{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#f4f8fb;font-size:12px;line-height:1.55}.result.show{display:block}.result.err{background:#fff0f1;color:#98343d}.loading{position:fixed;inset:0;background:rgba(238,243,248,.78);display:flex;align-items:center;justify-content:center;z-index:999}.loading.hidden{display:none}.loader{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px 23px;font-weight:900;box-shadow:0 15px 40px rgba(0,0,0,.14)}
-@media(max-width:800px){body{padding:9px}.grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.top{flex-direction:column}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;padding:18px}.wrap{max-width:1450px;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}.top h1{margin:0;color:var(--nav);font-size:25px}.top p{margin:5px 0 0;color:var(--muted);font-size:12px}.pill{padding:8px 11px;border-radius:999px;background:#edf5ff;color:#245da8;font-size:11px;font-weight:900}.card{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 7px 22px rgba(18,63,112,.06);margin-bottom:12px;overflow:hidden}.head{padding:13px 15px;border-bottom:1px solid #e8eef4;font-weight:900}.body{padding:15px}.grid{display:grid;grid-template-columns:1.4fr 1fr auto auto auto;gap:10px;align-items:end}.price-grid{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:end}.price-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:12px 0}.price-table{min-width:1220px}.field label{display:block;font-size:10px;font-weight:900;color:#48627d;margin-bottom:5px}.field input,.field select{width:100%;min-height:42px;border:1px solid #ccd8e5;border-radius:8px;padding:9px 10px;background:#fff;color:var(--text)}.btn{min-height:42px;border:0;border-radius:8px;padding:9px 13px;font-weight:900;cursor:pointer}.primary{background:var(--blue);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#f4f8fb;color:#345879;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:not-allowed}.hint{margin-top:12px;padding:10px 12px;background:#eef7ff;border:1px solid #cce3fb;border-radius:9px;color:#315f8f;font-size:11px;line-height:1.55}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px}.stat span{display:block;color:var(--muted);font-size:9px;font-weight:900}.stat strong{display:block;margin-top:5px;font-size:19px}.tablewrap{overflow:auto;max-height:580px}table{width:100%;border-collapse:collapse;min-width:1180px;font-size:11px}th{position:sticky;top:0;background:#f1f5f9;color:#405a76;text-align:left;padding:9px;border-bottom:1px solid var(--line);z-index:1}td{padding:8px 9px;border-bottom:1px solid #edf1f5;vertical-align:top}.bad td{background:#fff3f3}.warn td{background:#fffaf0}.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900}.ok{background:#e8f7ef;color:#168652}.error{background:#fff0f1;color:#c73f4a}.muted{color:var(--muted)}.result{display:none;margin-top:12px;padding:11px;border-radius:9px;background:#f4f8fb;font-size:12px;line-height:1.55}.result.show{display:block}.result.err{background:#fff0f1;color:#98343d}.loading{position:fixed;inset:0;background:rgba(238,243,248,.78);display:flex;align-items:center;justify-content:center;z-index:999}.loading.hidden{display:none}.loader{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px 23px;font-weight:900;box-shadow:0 15px 40px rgba(0,0,0,.14)}
+@media(max-width:800px){body{padding:9px}.grid,.price-grid{grid-template-columns:1fr}.summary,.price-summary{grid-template-columns:1fr 1fr}.top{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -35,13 +35,33 @@
   </div>
 
   <div class="card"><div class="head">2. Preview & Validate</div><div class="tablewrap"><table><thead><tr><th>Excel Row</th><th>Customer ID</th><th>Customer Name</th><th>Phone</th><th>Location</th><th>Address</th><th>Status</th><th>Map Link</th><th>Latitude</th><th>Longitude</th><th>Delivery Note</th><th>Validation</th></tr></thead><tbody id="preview"><tr><td colspan="12" style="padding:28px;text-align:center" class="muted">Choose a file and click Preview File.</td></tr></tbody></table></div><div class="body" style="display:flex;justify-content:flex-end;gap:8px"><button class="btn green" id="importBtn" type="button" disabled>Import Ready Rows to Supabase</button></div></div>
+  <div class="card"><div class="head">3. Bulk Customer Product Prices</div><div class="body">
+    <div class="price-grid">
+      <button class="btn ghost" id="downloadPricesBtn" type="button">⬇ Download Current Customer Prices</button>
+      <div class="field"><label>Edited Customer Price Excel File</label><input id="priceFileInput" type="file" accept=".xlsx,.xls"></div>
+      <button class="btn primary" id="readPricesBtn" type="button">Preview Price Updates</button>
+    </div>
+    <div class="hint"><strong>Bulk price workflow:</strong> Download the current price workbook, edit <strong>Price USD</strong> and/or <strong>Price KHR</strong>, then upload the same workbook here. Matching uses <strong>Customer ID + Product Code</strong>. Do not change those two key columns. Customer/Product names are reference only. Leave one currency blank to keep its current value. Set <strong>Reset To Default = YES</strong> to restore both prices to the product default.</div>
+    <div class="result" id="priceMessage"></div>
+    <div class="price-summary">
+      <div class="stat"><span>PRICE ROWS</span><strong id="pRows">0</strong></div>
+      <div class="stat"><span>CHANGES</span><strong id="pChanges">0</strong></div>
+      <div class="stat"><span>UNCHANGED</span><strong id="pUnchanged">0</strong></div>
+      <div class="stat"><span>INVALID</span><strong id="pInvalid">0</strong></div>
+      <div class="stat"><span>UPDATED</span><strong id="pUpdated">0</strong></div>
+    </div>
+  </div>
+  <div class="tablewrap"><table class="price-table"><thead><tr><th>Excel Row</th><th>Customer ID</th><th>Customer Name</th><th>Location</th><th>Product Code</th><th>Product</th><th>Default USD</th><th>Default KHR</th><th>Price USD</th><th>Price KHR</th><th>Reset</th><th>Validation</th></tr></thead><tbody id="pricePreview"><tr><td colspan="12" style="padding:28px;text-align:center" class="muted">Download current prices, edit the Excel file, then preview it here.</td></tr></tbody></table></div>
+  <div class="body" style="display:flex;justify-content:flex-end;gap:8px"><button class="btn green" id="importPricesBtn" type="button" disabled>Import Price Changes to Supabase</button></div>
+  </div>
+
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="supabase-customers-adapter.js?v=20260910-2"></script>
+<script src="supabase-customers-adapter.js?v=20260920-1"></script>
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id);let locations=[],currentCustomers=[],readyRows=[],previewRows=[];
+const $=id=>document.getElementById(id);let locations=[],currentCustomers=[],currentProducts=[],readyRows=[],previewRows=[],priceBaselineRows=[],pricePreviewRows=[],priceReadyRows=[];
 const clean=v=>String(v??'').trim();const key=v=>clean(v).toLowerCase().replace(/[^a-z0-9]/g,'');
 const esc=v=>clean(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const aliases={
@@ -61,7 +81,7 @@ function render(){
  $('preview').innerHTML=previewRows.length?previewRows.map(r=>'<tr class="'+(r.valid?'':'bad')+'"><td>'+r.excelRow+'</td><td>'+esc(r.customerId||'—')+'</td><td><strong>'+esc(r.name)+'</strong></td><td>'+esc(r.phone||'—')+'</td><td>'+esc(r.locationCode||r.locationRaw||'—')+'</td><td>'+esc(r.address||'—')+'</td><td>'+esc(r.active?'Active':'Inactive')+'</td><td>'+esc(r.googleMapsLink||'—')+'</td><td>'+esc(r.latitude||'—')+'</td><td>'+esc(r.longitude||'—')+'</td><td>'+esc(r.deliveryLocationNote||'—')+'</td><td>'+(r.valid?'<span class="badge ok">READY</span>':'<span class="badge error">'+esc(r.errors.join(' · '))+'</span>')+'</td></tr>').join(''):'<tr><td colspan="12" style="padding:28px;text-align:center" class="muted">No data rows found.</td></tr>';
  $('importBtn').disabled=!readyRows.length;
 }
-async function boot(){try{showLoading(true,'Loading permitted locations…');const data=await BBCustomersAdapter.apiGet('customerEditorBootstrap');locations=Array.isArray(data.locations)?data.locations:[];currentCustomers=Array.isArray(data.customers)?data.customers:[];$('locationPill').textContent=locations.length+' permitted locations';$('downloadCurrentBtn').disabled=!currentCustomers.length;}catch(e){setMessage(e.message||String(e),true);$('locationPill').textContent='Access denied';$('downloadCurrentBtn').disabled=true;}finally{showLoading(false);}}
+async function boot(){try{showLoading(true,'Loading permitted locations…');const data=await BBCustomersAdapter.apiGet('customerEditorBootstrap');locations=Array.isArray(data.locations)?data.locations:[];currentCustomers=Array.isArray(data.customers)?data.customers:[];currentProducts=Array.isArray(data.products)?data.products:[];$('locationPill').textContent=locations.length+' permitted locations';$('downloadCurrentBtn').disabled=!currentCustomers.length;}catch(e){setMessage(e.message||String(e),true);$('locationPill').textContent='Access denied';$('downloadCurrentBtn').disabled=true;}finally{showLoading(false);}}
 function parseSheet(matrix){
  if(!matrix.length)throw new Error('The file is empty.');const headers=matrix[0].map(clean);
  const idx={};Object.entries(aliases).forEach(([k,a])=>idx[k]=colIndex(headers,a));
@@ -109,6 +129,178 @@ $('downloadCurrentBtn').addEventListener('click',()=>{try{
   XLSX.writeFile(wb,'BIG-BROTHER-Current-Customers-'+stamp+'.xlsx',{compression:true});
   setMessage('Downloaded '+rows.length+' current customers as Excel. Keep Customer ID unchanged when updating existing customers.');
 }catch(e){setMessage(e.message||String(e),true);}});
+
+
+function setPriceMessage(text,error=false){const el=$('priceMessage');el.textContent=text||'';el.className='result'+(text?' show':'')+(error?' err':'');}
+function priceNumber(v){
+  const raw=clean(v);
+  if(raw==='')return {blank:true,valid:true,value:null};
+  const normalized=raw.replace(/,/g,'').replace(/\$/g,'').replace(/៛/g,'').trim();
+  const n=Number(normalized);
+  return {blank:false,valid:Number.isFinite(n)&&n>=0,value:n};
+}
+function yesValue(v){return ['yes','true','1','y','reset'].includes(clean(v).toLowerCase());}
+function priceKey(customerId,productCode){return clean(customerId)+'|'+clean(productCode);}
+function renderPricePreview(){
+  const invalid=pricePreviewRows.filter(r=>!r.valid).length;
+  const unchanged=pricePreviewRows.filter(r=>r.valid&&!r.changed).length;
+  $('pRows').textContent=pricePreviewRows.length;
+  $('pChanges').textContent=priceReadyRows.length;
+  $('pUnchanged').textContent=unchanged;
+  $('pInvalid').textContent=invalid;
+  $('importPricesBtn').disabled=!priceReadyRows.length;
+  const shown=pricePreviewRows.slice(0,300);
+  $('pricePreview').innerHTML=shown.length?shown.map(r=>'<tr class="'+(!r.valid?'bad':r.changed?'warn':'')+'"><td>'+r.excelRow+'</td><td>'+esc(r.customerId||'—')+'</td><td>'+esc(r.customerName||'—')+'</td><td>'+esc(r.locationCode||'—')+'</td><td>'+esc(r.productCode||'—')+'</td><td>'+esc(r.productName||'—')+'</td><td>'+esc(r.defaultPriceUSD)+'</td><td>'+esc(r.defaultPriceKHR)+'</td><td>'+esc(r.priceUSD===''?'—':r.priceUSD)+'</td><td>'+esc(r.priceKHR===''?'—':r.priceKHR)+'</td><td>'+esc(r.resetToDefault?'YES':'—')+'</td><td>'+(!r.valid?'<span class="badge error">'+esc(r.errors.join(' · '))+'</span>':r.changed?'<span class="badge ok">CHANGE</span>':'<span class="badge">UNCHANGED</span>')+'</td></tr>').join(''):'<tr><td colspan="12" style="padding:28px;text-align:center" class="muted">No price rows found.</td></tr>';
+}
+async function loadPriceBaseline(force=false){
+  if(!force&&priceBaselineRows.length)return priceBaselineRows;
+  const data=await BBCustomersAdapter.apiGet('customerPriceExport');
+  priceBaselineRows=Array.isArray(data.rows)?data.rows:[];
+  return priceBaselineRows;
+}
+function parsePriceSheet(matrix,baseline){
+  if(!matrix.length)throw new Error('The price file is empty.');
+  const headers=matrix[0].map(clean);
+  const pAliases={
+    customerId:['customerid','customercode','id'],
+    productCode:['productcode','code','sku'],
+    priceUSD:['priceusd','customerpriceusd','usdprice','usd'],
+    priceKHR:['pricekhr','customerpricekhr','khrprice','khr'],
+    reset:['resettodefault','resetdefault','reset']
+  };
+  const idx={};Object.entries(pAliases).forEach(([k,a])=>idx[k]=colIndex(headers,a));
+  if(idx.customerId<0)throw new Error('Customer ID column was not found.');
+  if(idx.productCode<0)throw new Error('Product Code column was not found.');
+  if(idx.priceUSD<0&&idx.priceKHR<0&&idx.reset<0)throw new Error('Price USD, Price KHR, or Reset To Default column is required.');
+
+  const customerIds=new Set(currentCustomers.map(x=>clean(x.customerId)));
+  const productCodes=new Set(currentProducts.map(x=>clean(x.productCode)));
+  const baselineMap=new Map((baseline||[]).map(x=>[priceKey(x.customerId,x.productCode),x]));
+  const seen=new Set();
+  pricePreviewRows=[];
+
+  for(let i=1;i<matrix.length;i++){
+    const row=matrix[i];
+    if(!row||row.every(v=>clean(v)===''))continue;
+    const customerId=val(row,idx.customerId);
+    const productCode=val(row,idx.productCode);
+    const usdParsed=priceNumber(val(row,idx.priceUSD));
+    const khrParsed=priceNumber(val(row,idx.priceKHR));
+    const resetToDefault=yesValue(val(row,idx.reset));
+    const errors=[];
+    const k=priceKey(customerId,productCode);
+    const base=baselineMap.get(k)||null;
+
+    if(!customerId)errors.push('Customer ID required');
+    else if(!customerIds.has(customerId))errors.push('Unknown Customer ID');
+    if(!productCode)errors.push('Product Code required');
+    else if(!productCodes.has(productCode))errors.push('Unknown Product Code');
+    if(seen.has(k))errors.push('Duplicate Customer ID + Product Code');
+    seen.add(k);
+    if(!usdParsed.valid)errors.push('Bad USD price');
+    if(!khrParsed.valid)errors.push('Bad KHR price');
+    if(!resetToDefault&&usdParsed.blank&&khrParsed.blank)errors.push('Enter USD/KHR price or Reset To Default');
+    if(!base&&customerId&&productCode)errors.push('Price record not available');
+
+    let nextUSD=base?Number(base.priceUSD||0):0;
+    let nextKHR=base?Number(base.priceKHR||0):0;
+    if(resetToDefault&&base){
+      nextUSD=Number(base.defaultPriceUSD||0);
+      nextKHR=Number(base.defaultPriceKHR||0);
+    }else{
+      if(!usdParsed.blank&&usdParsed.valid)nextUSD=usdParsed.value;
+      if(!khrParsed.blank&&khrParsed.valid)nextKHR=khrParsed.value;
+    }
+    const changed=!!base&&errors.length===0&&(
+      Math.abs(nextUSD-Number(base.priceUSD||0))>0.0000001 ||
+      Math.abs(nextKHR-Number(base.priceKHR||0))>0.0000001
+    );
+
+    pricePreviewRows.push({
+      excelRow:i+1,customerId,productCode,
+      customerName:base?.customerName||'',
+      locationCode:base?.locationCode||'',
+      productName:base?.productName||'',
+      defaultPriceUSD:base?.defaultPriceUSD??'',
+      defaultPriceKHR:base?.defaultPriceKHR??'',
+      priceUSD:usdParsed.blank?'':usdParsed.value,
+      priceKHR:khrParsed.blank?'':khrParsed.value,
+      resetToDefault,errors,valid:errors.length===0,changed
+    });
+  }
+
+  priceReadyRows=pricePreviewRows.filter(r=>r.valid&&r.changed).map(r=>({
+    customerId:r.customerId,
+    productCode:r.productCode,
+    priceUSD:r.priceUSD,
+    priceKHR:r.priceKHR,
+    resetToDefault:r.resetToDefault
+  }));
+  renderPricePreview();
+}
+$('downloadPricesBtn').addEventListener('click',async()=>{try{
+  if(typeof XLSX==='undefined')throw new Error('Excel library did not load.');
+  showLoading(true,'Loading current customer prices…');
+  const rows=await loadPriceBaseline(true);
+  if(!rows.length)throw new Error('No customer prices are available to download.');
+  const excelRows=rows.map(r=>({
+    'Customer ID':clean(r.customerId),
+    'Customer Name':clean(r.customerName),
+    'Location Code':clean(r.locationCode),
+    'Product Code':clean(r.productCode),
+    'Product Name':clean(r.productName),
+    'Unit':clean(r.unit),
+    'Default Price USD':Number(r.defaultPriceUSD||0),
+    'Default Price KHR':Number(r.defaultPriceKHR||0),
+    'Price USD':Number(r.priceUSD||0),
+    'Price KHR':Number(r.priceKHR||0),
+    'Reset To Default':''
+  }));
+  const ws=XLSX.utils.json_to_sheet(excelRows,{header:[
+    'Customer ID','Customer Name','Location Code','Product Code','Product Name','Unit',
+    'Default Price USD','Default Price KHR','Price USD','Price KHR','Reset To Default'
+  ]});
+  ws['!cols']=[{wch:14},{wch:26},{wch:14},{wch:16},{wch:28},{wch:10},{wch:18},{wch:18},{wch:14},{wch:14},{wch:18}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Customer Prices');
+  const now=new Date();
+  const stamp=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  XLSX.writeFile(wb,'BIG-BROTHER-Customer-Prices-'+stamp+'.xlsx',{compression:true});
+  setPriceMessage('Downloaded '+excelRows.length+' customer-product price rows. Edit Price USD / Price KHR only; keep Customer ID and Product Code unchanged.');
+}catch(e){setPriceMessage(e.message||String(e),true);}finally{showLoading(false);}});
+$('readPricesBtn').addEventListener('click',async()=>{try{
+  setPriceMessage('');
+  const file=$('priceFileInput').files[0];
+  if(!file)throw new Error('Choose the edited customer price Excel file first.');
+  if(typeof XLSX==='undefined')throw new Error('Excel reader library did not load.');
+  showLoading(true,'Checking '+file.name+' against current prices…');
+  const baseline=await loadPriceBaseline(true);
+  const ab=await file.arrayBuffer();
+  const wb=XLSX.read(ab,{type:'array'});
+  if(!wb.SheetNames.length)throw new Error('No worksheet was found.');
+  const matrix=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:false});
+  parsePriceSheet(matrix,baseline);
+  const invalid=pricePreviewRows.filter(r=>!r.valid).length;
+  const unchanged=pricePreviewRows.filter(r=>r.valid&&!r.changed).length;
+  setPriceMessage('Price preview ready: '+priceReadyRows.length+' changes, '+unchanged+' unchanged, '+invalid+' invalid. Preview table shows up to 300 rows.');
+}catch(e){pricePreviewRows=[];priceReadyRows=[];renderPricePreview();setPriceMessage(e.message||String(e),true);}finally{showLoading(false);}});
+$('importPricesBtn').addEventListener('click',async()=>{if(!priceReadyRows.length)return;
+  if(!confirm('Import '+priceReadyRows.length+' customer price changes to Supabase?\n\nOnly rows marked CHANGE will be updated.'))return;
+  try{
+    showLoading(true,'Updating customer prices…');
+    setPriceMessage('');
+    const result=await BBCustomersAdapter.apiPost('importCustomerPrices',{rows:priceReadyRows});
+    $('pUpdated').textContent=result.updated||0;
+    Object.keys(localStorage).filter(k=>k.startsWith('BB_CUSTOMERS_EDITOR_PRICE_CACHE_V2_')).forEach(k=>localStorage.removeItem(k));
+    priceBaselineRows=[];
+    const errors=(result.results||[]).filter(r=>r.status==='ERROR');
+    setPriceMessage('Price import complete: '+(result.updated||0)+' updated, '+(result.skipped||0)+' skipped, '+(result.errors||0)+' errors.'+(errors.length?' First error: '+(errors[0].message||'Unknown error'):''),!!result.errors);
+    if(!(result.errors||0)){
+      priceReadyRows=[];
+      $('importPricesBtn').disabled=true;
+    }
+  }catch(e){setPriceMessage(e.message||String(e),true);}finally{showLoading(false);}
+});
 
 $('templateBtn').addEventListener('click',()=>{const csv='Customer Name,Phone,Address,Location Code,Status,Google Maps Link,Latitude,Longitude,Delivery Location Note\nExample Customer,012345678,Phnom Penh,PP-01,Active,,,,Blue gate\n';const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='BIG-BROTHER-Customer-Import-Template.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);});
 boot();
