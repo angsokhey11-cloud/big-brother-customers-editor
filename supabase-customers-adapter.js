@@ -1,4 +1,4 @@
-/* BIG BROTHER — Customers Editor Supabase Adapter V1.1 */
+/* BIG BROTHER — Customers Editor Supabase Adapter V1.2 */
 (function(){
   'use strict';
 
@@ -67,6 +67,8 @@
       case 'customerProductPrices':
         if(!params.customerId)throw new Error('Customer ID is required for Supabase price lookup.');
         return rpc('bb_customer_editor_prices',{p_customer_id:String(params.customerId)});
+      case 'customerPriceExport':
+        return rpc('bb_customer_editor_export_prices');
       default: throw new Error('Unsupported Customers Editor read action: '+action);
     }
   }
@@ -83,6 +85,10 @@
         return rpc('bb_customer_editor_import_customers',{
           p_rows:Array.isArray(payload.rows)?payload.rows:[],
           p_mode:String(payload.mode||'CREATE_ONLY')
+        });
+      case 'importCustomerPrices':
+        return rpc('bb_customer_editor_import_prices',{
+          p_rows:Array.isArray(payload.rows)?payload.rows:[]
         });
       default: throw new Error('Unsupported Customers Editor write action: '+action);
     }
