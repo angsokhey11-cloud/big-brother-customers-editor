@@ -151,7 +151,7 @@
     button.title='Import a customer list from Excel or CSV';
     button.addEventListener('click',()=>{
       const embedded=new URLSearchParams(location.search).get('embed')==='1';
-      location.href='import-customers.html'+(embedded?'?embed=1':'');
+      location.href='import-customers.html?'+(embedded?'embed=1&':'')+'v=20260920-1';
     });
     actions.insertBefore(button,save);
   }
