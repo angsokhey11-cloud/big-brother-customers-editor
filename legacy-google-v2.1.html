@@ -89,7 +89,7 @@
     <div class="workspace">
       <section class="page active" id="page-add">
         <div class="card">
-          <div class="card-head"><div><div class="card-title">＋ New Customer</div><div class="card-sub">A permanent Customer ID and default product-price row are created automatically.</div></div></div>
+          <div class="card-head"><div><div class="card-title">＋ New Customer</div><div class="card-sub">A permanent Customer ID and default item-price row are created automatically.</div></div></div>
           <div class="card-body">
             <form id="addForm">
               <div class="form-grid four">
@@ -104,7 +104,7 @@
                 <div class="field"><label>Status</label><select id="aActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
                 <div class="field full"><label>Delivery Location Note</label><textarea id="aDeliveryNote" placeholder="Example: Blue gate beside ABA"></textarea></div>
               </div>
-              <div class="info blue" style="margin-top:12px">When saved, all active products are added to this customer using each product’s default Price USD. Individual prices can be changed later in All Customer Details.</div>
+              <div class="info blue" style="margin-top:12px">When saved, all active Products and Services are added to this customer using each item’s default Price USD. Individual prices can be changed later in All Customer Details.</div>
               <div class="actions"><button type="button" class="btn ghost" onclick="resetAddForm()">Clear</button><button class="btn green" id="addSaveBtn">Save New Customer</button></div>
             </form>
           </div>
@@ -136,7 +136,7 @@
           <div class="summary-card"><span>WITH MAP</span><strong id="mappedCustomers">0</strong></div>
         </div>
         <div class="card" id="customerListCard">
-          <div class="card-head"><div><div class="card-title">All Customer Details</div><div class="card-sub">Select Manage to edit information and product prices.</div></div><button class="btn ghost" onclick="loadApp()">Refresh</button></div>
+          <div class="card-head"><div><div class="card-title">All Customer Details</div><div class="card-sub">Select Manage to edit information and item prices.</div></div><button class="btn ghost" onclick="loadApp()">Refresh</button></div>
           <div class="toolbar">
             <input class="search search-main" id="customerSearch" placeholder="Search name, ID, phone or address…" oninput="renderCustomerTable()">
             <select class="search" id="customerLocationFilter" onchange="renderCustomerTable()"><option value="">All locations</option></select>
@@ -147,7 +147,7 @@
         </div>
 
         <div class="card hidden" id="customerDetailCard">
-          <div class="card-head"><div><div class="card-title" id="detailTitle">Customer Detail</div><div class="card-sub">Edit customer information and individual product prices.</div></div><button class="btn ghost" onclick="closeCustomerDetail()">← Back to List</button></div>
+          <div class="card-head"><div><div class="card-title" id="detailTitle">Customer Detail</div><div class="card-sub">Edit customer information and individual item prices.</div></div><button class="btn ghost" onclick="closeCustomerDetail()">← Back to List</button></div>
           <div class="section">
             <div class="section-title">Customer Information <span class="badge blue" id="detailIdBadge"></span></div>
             <div class="form-grid four">
@@ -165,10 +165,10 @@
             <div class="actions"><button class="btn ghost" onclick="openSelectedMap()">Open Map</button><button class="btn green" id="detailSaveBtn" onclick="saveCustomerDetail()">Save Customer Information</button></div>
           </div>
           <div class="section">
-            <div class="section-title"><span>Customer Products & Prices</span><span class="badge blue" id="priceCount">0 Products</span></div>
-            <div class="info amber" style="margin-bottom:10px">Default Price comes from Products → Price USD. Changing a customer price affects only this customer. Reset restores the current default price.</div>
-            <div class="table-wrap"><table class="price-table"><thead><tr><th>Product Code</th><th>Product Name</th><th>Unit</th><th>Default Price USD</th><th>Customer Price USD</th><th>Price Type</th><th>Action</th></tr></thead><tbody id="priceTableBody"></tbody></table></div>
-            <div class="actions"><button class="btn ghost" onclick="resetAllPrices()">Reset All to Default</button><button class="btn primary" id="priceSaveBtn" onclick="savePrices()">Save Customer Prices</button></div>
+            <div class="section-title"><span>Customer Items & Prices</span><span class="badge blue" id="priceCount">0 Items</span></div>
+            <div class="info amber" style="margin-bottom:10px">Default Price comes from the Item Master. Changing a customer price affects only this customer. Reset restores the current default price.</div>
+            <div class="table-wrap"><table class="price-table"><thead><tr><th>Item Code</th><th>Item Name</th><th>Unit</th><th>Default Price USD</th><th>Customer Price USD</th><th>Price Type</th><th>Action</th></tr></thead><tbody id="priceTableBody"></tbody></table></div>
+            <div class="actions"><button class="btn ghost" onclick="resetAllPrices()">Reset All to Default</button><button class="btn primary" id="priceSaveBtn" onclick="savePrices()">Save Item Prices</button></div>
           </div>
         </div>
       </section>
@@ -865,7 +865,7 @@ async function openCustomerDetail(customerId){
   }else{
     state.prices=[];
     renderPriceTable();
-    showLoading(true,"Loading customer products and prices…");
+    showLoading(true,"Loading customer items and prices…");
   }
 
   try{
@@ -958,14 +958,14 @@ async function saveCustomerDetail(){
 }
 
 function renderPriceTable(){
-  $("priceCount").textContent=state.prices.length+" Products";
+  $("priceCount").textContent=state.prices.length+" Items";
 
   $("priceTableBody").innerHTML=state.prices.length
     ?state.prices.map((item,index)=>
       '<tr class="'+(item.isCustomPrice?"custom":"")+
       '" id="priceRow'+index+'">'+
       '<td><strong>'+esc(item.productCode)+'</strong></td>'+
-      '<td>'+esc(item.productName)+'</td>'+
+      '<td>'+esc(item.productName)+(String(item.itemType||'PRODUCT').toUpperCase()==='SERVICE'?'<br><span class="badge blue">SERVICE</span>':'')+'</td>'+
       '<td>'+esc(item.unit||"—")+'</td>'+
       '<td class="price-default">'+money(item.defaultPriceUSD)+'</td>'+
       '<td><input type="number" min="0" step="0.01" value="'+
@@ -980,7 +980,7 @@ function renderPriceTable(){
       index+')">Reset Default</button></td>'+
       '</tr>'
     ).join("")
-    :'<tr><td colspan="7" class="empty">No active products found.</td></tr>';
+    :'<tr><td colspan="7" class="empty">No active items found.</td></tr>';
 }
 
 function priceChanged(index,value){
@@ -1068,7 +1068,7 @@ async function savePrices(){
     savePriceCache(state.selected.customerId);
     saveMainCache();
 
-    toast(result.savedCount+" product prices saved.");
+    toast(result.savedCount+" item prices saved.");
   }catch(error){
     toast(error.message,true);
   }finally{
