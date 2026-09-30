@@ -15,7 +15,7 @@
       Object.keys(localStorage).filter(k=>k.startsWith('BB_CUSTOMERS_EDITOR_PRICE_CACHE_V2_')).forEach(k=>localStorage.removeItem(k));
     }catch(_){}
 
-    const response=await fetch('legacy-google-v2.1.html?v=20260920-1',{cache:'no-store'});
+    const response=await fetch('legacy-google-v2.1.html?v=20260930-service1',{cache:'no-store'});
     if(!response.ok)throw new Error('Could not load Customers Editor source.');
     let html=await response.text();
 
