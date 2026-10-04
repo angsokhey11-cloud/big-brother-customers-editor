@@ -102,6 +102,8 @@
                 <div class="field"><label>Latitude</label><input id="aLatitude" type="number" min="-90" max="90" step="any" placeholder="11.556374"></div>
                 <div class="field"><label>Longitude</label><input id="aLongitude" type="number" min="-180" max="180" step="any" placeholder="104.928210"></div>
                 <div class="field"><label>Status</label><select id="aActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+                <div class="field"><label>Credit Term Type</label><select id="aCreditTermType" onchange="syncCreditTermFields('a')"><option value="DAYS">Days</option><option value="HALF_MONTH">Half Month</option><option value="MONTHS">Calendar Months</option></select></div>
+                <div class="field"><label>Credit Term Value</label><input id="aCreditTermValue" type="number" min="0" max="365" step="1" value="4"><small id="aCreditTermHint">Due = Invoice Date + 4 days</small></div>
                 <div class="field full"><label>Delivery Location Note</label><textarea id="aDeliveryNote" placeholder="Example: Blue gate beside ABA"></textarea></div>
               </div>
               <div class="info blue" style="margin-top:12px">When saved, all active Products and Services are added to this customer using each item’s default Price USD. Individual prices can be changed later in All Customer Details.</div>
@@ -143,7 +145,7 @@
             <select class="search" id="customerStatusFilter" onchange="renderCustomerTable()"><option value="">All statuses</option><option value="true">Active</option><option value="false">Inactive</option></select>
             <button class="btn ghost" onclick="clearFilters()">Clear Filters</button>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Customer ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Location</th><th>Map</th><th>Status</th><th>Action</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Customer ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Location</th><th>Credit Term</th><th>Map</th><th>Status</th><th>Action</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
         </div>
 
         <div class="card hidden" id="customerDetailCard">
@@ -160,6 +162,8 @@
               <div class="field"><label>Latitude</label><input id="dLatitude" type="number" min="-90" max="90" step="any"></div>
               <div class="field"><label>Longitude</label><input id="dLongitude" type="number" min="-180" max="180" step="any"></div>
               <div class="field"><label>Status</label><select id="dActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+              <div class="field"><label>Credit Term Type</label><select id="dCreditTermType" onchange="syncCreditTermFields('d')"><option value="DAYS">Days</option><option value="HALF_MONTH">Half Month</option><option value="MONTHS">Calendar Months</option></select></div>
+              <div class="field"><label>Credit Term Value</label><input id="dCreditTermValue" type="number" min="0" max="365" step="1"><small id="dCreditTermHint"></small></div>
               <div class="field full"><label>Delivery Location Note</label><textarea id="dDeliveryNote"></textarea></div>
             </div>
             <div class="actions"><button class="btn ghost" onclick="openSelectedMap()">Open Map</button><button class="btn green" id="detailSaveBtn" onclick="saveCustomerDetail()">Save Customer Information</button></div>
@@ -273,6 +277,35 @@ function bool(value){
     String(value).toLowerCase()==="true"||
     String(value)==="1";
 }
+function creditTermLabel(item){
+  const type=String(item?.creditTermType||"DAYS").toUpperCase();
+  const value=Number(item?.creditTermValue??4);
+  if(type==="HALF_MONTH")return "Half Month";
+  if(type==="MONTHS")return value+" Month"+(value===1?"":"s");
+  return value+" Day"+(value===1?"":"s");
+}
+
+function syncCreditTermFields(prefix){
+  const type=$(prefix+"CreditTermType")?.value||"DAYS";
+  const input=$(prefix+"CreditTermValue");
+  const hint=$(prefix+"CreditTermHint");
+  if(!input)return;
+  if(type==="HALF_MONTH"){
+    input.value="0";
+    input.disabled=true;
+    if(hint)hint.textContent="Due on next 15th or next 1st";
+  }else if(type==="MONTHS"){
+    input.disabled=false;
+    input.min="1";input.max="24";
+    if(Number(input.value)<1)input.value="1";
+    if(hint)hint.textContent="Due on 1st day of the target month";
+  }else{
+    input.disabled=false;
+    input.min="0";input.max="365";
+    if(hint)hint.textContent="Due = Invoice Date + "+(Number(input.value)||0)+" days";
+  }
+}
+
 
 function num(value){
   const n=Number(value);
@@ -687,6 +720,8 @@ function addPayload(){
     address:$("aAddress").value.trim(),
     locationCode:$("aLocation").value,
     active:$("aActive").value,
+    creditTermType:$("aCreditTermType").value,
+    creditTermValue:$("aCreditTermType").value==="HALF_MONTH"?0:Number($("aCreditTermValue").value||0),
     googleMapsLink:$("aMapLink").value.trim(),
     latitude:$("aLatitude").value.trim(),
     longitude:$("aLongitude").value.trim(),
@@ -746,7 +781,12 @@ function resetAddForm(){
   $("addForm").reset();
   $("aLocation").innerHTML=locationOptions();
   $("aActive").value="true";
+  $("aCreditTermType").value="DAYS";
+  $("aCreditTermValue").value="4";
+  syncCreditTermFields("a");
 }
+
+syncCreditTermFields("a");
 
 function parseCoordinates(link){
   const text=String(link||"");
@@ -807,6 +847,7 @@ function renderCustomerTable(){
       '<td>'+esc(item.phone||"—")+'</td>'+
       '<td>'+esc(item.address||"—")+'</td>'+
       '<td>'+esc(item.locationCode||"—")+'</td>'+
+      '<td>'+esc(creditTermLabel(item))+'</td>'+
       '<td>'+(hasMap(item)
         ?'<span class="badge green">Ready</span>'
         :'<span class="badge red">Missing</span>')+'</td>'+
@@ -817,7 +858,7 @@ function renderCustomerTable(){
       escJs(item.customerId)+'\')">Manage</button></td>'+
       '</tr>'
     ).join("")
-    :'<tr><td colspan="8" class="empty">No customers found.</td></tr>';
+    :'<tr><td colspan="9" class="empty">No customers found.</td></tr>';
 }
 
 function clearFilters(){
@@ -842,6 +883,9 @@ function fillCustomerDetail(customer){
   $("dAddress").value=customer.address||"";
   $("dLocation").innerHTML=locationOptions(customer.locationCode);
   $("dActive").value=String(bool(customer.active));
+  $("dCreditTermType").value=customer.creditTermType||"DAYS";
+  $("dCreditTermValue").value=Number(customer.creditTermValue??4);
+  syncCreditTermFields("d");
   $("dMapLink").value=customer.googleMapsLink||"";
   $("dLatitude").value=customer.latitude||"";
   $("dLongitude").value=customer.longitude||"";
@@ -914,6 +958,8 @@ function detailPayload(){
     address:$("dAddress").value.trim(),
     locationCode:$("dLocation").value,
     active:$("dActive").value,
+    creditTermType:$("dCreditTermType").value,
+    creditTermValue:$("dCreditTermType").value==="HALF_MONTH"?0:Number($("dCreditTermValue").value||0),
     googleMapsLink:$("dMapLink").value.trim(),
     latitude:$("dLatitude").value.trim(),
     longitude:$("dLongitude").value.trim(),
